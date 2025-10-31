@@ -12,16 +12,15 @@
 
 std::vector<std::string> Tokenizer::tokenize(const std::string& text) {
     std::vector<std::string> tokens;
-    std::stringstream streamline(text);
-    std::string tempToken;
-    while(std::getline(streamline, tempToken, ' ')) {
-        tempToken.erase(std::remove(tempToken.begin(), tempToken.end(), '\n'), tempToken.end());
-        tempToken.erase(std::remove(tempToken.begin(), tempToken.end(), '\r'), tempToken.end());
-
-        for (char& c : tempToken) {
-            c = std::tolower(static_cast<unsigned char>(c));
+    std::string current;
+    for (char c : text) {
+        if (std::isalnum(static_cast<unsigned char>(c))) {  // isalnum return true if letter or num
+            current += std::tolower(static_cast<unsigned char>(c));
+        } else if (!current.empty()) {
+            tokens.push_back(current);
+            current.clear();
         }
-        tokens.push_back(tempToken);
     }
+    if (!current.empty()) tokens.push_back(current);
     return tokens;
 }
