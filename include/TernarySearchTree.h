@@ -1,0 +1,7 @@
+
+#ifndef TERNARYSEARCHTREE_H
+#define TERNARYSEARCHTREE_H
+
+
+
+#endif
