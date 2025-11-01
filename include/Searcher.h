@@ -2,16 +2,13 @@
 #ifndef SEARCHER_H
 #define SEARCHER_H
 
-#include <string>
-#include <vector>
-#include <unordered_map>
-#include <unordered_set>
-#include <map>
-#include <algorithm>
-#include <cmath>
+
 #include "Tokenizer.h"
 #include "TernarySearchTree.h"
 #include "Indexer.h"
+#include <vector>
+#include <unordered_map>
+#include <map>
 
 /**
  * Handles all search operations over built index :
@@ -28,8 +25,12 @@ class Searcher {
 private:
     const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>>& index;
     const TernarySearchTree* tst;
-
     Tokenizer tokenizer;
+
+    std::vector<size_t> positionalIntersect(const std::vector<size_t>& pos1, const std::vector<size_t>& pos2);
+    
+    std::unordered_map<std::string, std::vector<size_t>> chainedPositionalIntersect(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>>& index,
+    const std::vector<std::string>& queryTokens);
 
     // will return a unsorted vector of this prefix partial token.
     std::vector<std::string> expandToken(const std::string& token) const;
@@ -38,7 +39,7 @@ private:
 
     double computeIDF(size_t docsContainingTerm, size_t totalDocs) const;
     // added previousToken
-    std::map<std::string, double> computeScores(std:: string& previousToken,
+    std::map<std::string, double> computeScores(
         const std::vector<std::string>& expandedTokens) const;
 public:
     // default constructor

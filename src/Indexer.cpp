@@ -24,7 +24,7 @@ void Indexer::buildIndex(const std::vector<std::string>& files) {
         }
         totalTokensFiled += i;
     }
-    std::cout << "Total files " << files.size() << ", tokens filed " << totalTokensFiled << " :" << std::endl;
+    // std::cout << "Total files " << files.size() << ", tokens filed " << totalTokensFiled << " :" << std::endl;
 }
 
 const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>>& Indexer::getIndex() const {
