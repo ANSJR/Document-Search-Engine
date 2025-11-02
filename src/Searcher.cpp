@@ -3,11 +3,12 @@
 #include <../include/Searcher.h>
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 
 
 Searcher::Searcher(const std::unordered_map<std::string,
             std::unordered_map<std::string, std::vector<size_t>>>& idx,
-            const TernarySearchTree* tst/*= nullptr*/) : index(idx) {}
+            const TernarySearchTree& tst) : index(idx), tst(tst) {}
 
 std::vector<std::pair<std::string, double>> Searcher::search(const std::string& query) {
     std::vector<std::string> queryTokens = tokenizer.tokenize(query);
@@ -16,6 +17,7 @@ std::vector<std::pair<std::string, double>> Searcher::search(const std::string& 
     auto results = chainedPositionalIntersect(index, queryTokens);
 
     // Print 
+    std::cout << "PRINT : ";
     for (const auto& [word, positions] : results) {
         std::cout << word << ": ";
         for (size_t pos : positions) {
@@ -55,39 +57,58 @@ std::unordered_map<std::string, std::vector<size_t>> Searcher::chainedPositional
     // Creates current with all files and their pos of first token of query from index
     std::unordered_map<std::string, std::vector<size_t>> currentToken = token->second;
 
-    // For each next word, intersect positions doc-by-doc
-    for (int i = 1; i < queryTokens.size(); i++) {
-        // Creates nextToken with all files and their pos of next token of query from index
-        auto nextToken = index.find(queryTokens[i]);
+    // Iterate through next tokens in query
+    for (size_t i = 1; i < queryTokens.size(); ++i) {
+        const std::string& token = queryTokens[i];
+        std::unordered_map<std::string, std::vector<size_t>> mergedNext;
 
-        if (nextToken == index.end()) {
-            if (i + 1 != queryTokens.size()) return {};  // if next token not found return nothing ERROR FOR PREFIX
-///////////////////bool prefixFound = tst.search();
+        // Case 1 Exact match 
+        auto nextToken = index.find(token);
+        if (nextToken != index.end()) {
+            mergedNext = nextToken->second;
+        }
+        else {
+            // Case 2 prefix match
+            std::vector<std::string> prefixMatches = tst.prefixSearch(token);
+            std::cout << "\n\n" << prefixMatches[0] << " " << prefixMatches[1] << std::endl;
+            if (prefixMatches.empty()) {
+                return {};
+            }
+
+            // Merge words that match prefix
+            for (const auto& possibleWord : prefixMatches) {
+                auto foundWord = index.find(possibleWord);
+                if (foundWord != index.end()) {
+                    for (const auto& [file, positions] : foundWord->second) {
+                        auto& entry = mergedNext[file];
+                        entry.insert(entry.end(), positions.begin(), positions.end());
+                    }
+                }
+            }
+
+            // Sort and deduplicate merged positions
+            for (auto& [_, posVec] : mergedNext) {
+                std::sort(posVec.begin(), posVec.end());
+                posVec.erase(std::unique(posVec.begin(), posVec.end()), posVec.end());
+            }
         }
 
-
+        // Positional intersection
         std::unordered_map<std::string, std::vector<size_t>> resultingFileAndPositions;
-
         for (const auto& [file, positions1] : currentToken) {
-            // If theres a matching file in nextToken to current
-            auto found = nextToken->second.find(file);
-            if (found != nextToken->second.end()) {
-                // Gets Positional data of nextToken
-                auto positions2 = found->second;
-                // Finds intersection of Positional data of both current and nextToken
-                auto newPositions = positionalIntersect(positions1, positions2);
-                // If this file has matching Positional data for both
+            auto found = mergedNext.find(file);
+            if (found != mergedNext.end()) {
+                auto newPositions = positionalIntersect(positions1, found->second);
                 if (!newPositions.empty()) {
-                    // Hold data to use as next current token since this data had matched the prev current token and next token
                     resultingFileAndPositions[file] = newPositions;
                 }
             }
         }
-        // Will take replace prev current to check the next token in loop
         currentToken = std::move(resultingFileAndPositions);
+        if (currentToken.empty()) break;
     }
 
-    return currentToken;  // Only docs where full sequence occurs survive
+    return currentToken;
 }
 
 
@@ -105,7 +126,6 @@ double Searcher::computeIDF(size_t docsContainingTerm, size_t totalDocs) const {
 }
 
 
-// added previousToken
 std::map<std::string, double> Searcher::computeScores( const std::vector<std::string>& expandedqueryTokens) const {
         for(const auto& token : expandedqueryTokens) {
 

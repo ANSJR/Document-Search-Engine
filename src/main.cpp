@@ -9,6 +9,7 @@
 #include "../include/TxtReader.h"
 #include "../include/Indexer.h"
 #include "../include/Searcher.h"
+#include "../include/TernarySearchTree.h"
 #include <iostream>
 
 int main() {
@@ -19,28 +20,38 @@ int main() {
     indexer.buildIndex(files);
 
     auto index = indexer.getIndex();
-    // for (const auto& [word, values] : index) {
-    //     std::cout << word << ": ";
-    //     for (const auto& [fileName, Positions] : values){
-    //         std::cout << fileName << " ";
-    //         for (const auto& pos : Positions){
-    //             std::cout << pos << ", ";
-    //         }
-    //     }
-    //     std::cout << "\n";
-    // }
-    // std::cout << std::endl << index.size();
+    for (const auto& [word, values] : index) {
+        std::cout << word << ": ";
+        for (const auto& [fileName, Positions] : values){
+            std::cout << fileName << " ";
+            for (const auto& pos : Positions){
+                std::cout << pos << ", ";
+            }
+        }
+        std::cout << "\n";
+    }
+    std::cout << std::endl << index.size();
 
 
-    // Optional TST pointer (nullptr for now)
-    TernarySearchTree* tst = nullptr;
+
+
+    TernarySearchTree tst;
+    tst.insert("apple");
+    tst.insert("banana");
+    tst.insert("orange");
+    tst.insert("organ");
+    tst.insert("orbla");
+    tst.printTST();
 
     // Create Searcher
     Searcher searcher(index, tst);
 
     // Search query
-    std::string query = "those who wrote that we might read";
+    std::string query = "apple banana or";
     searcher.search(query);
+    std::cout << std::endl;
+    tst.printTST();
+    
 
     return 0;
 }
