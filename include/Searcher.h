@@ -24,7 +24,7 @@
 class Searcher {
 private:
     const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>>& index;
-    const TernarySearchTree* tst;
+    const TernarySearchTree& tst;
     Tokenizer tokenizer;
 
     std::vector<size_t> positionalIntersect(const std::vector<size_t>& pos1, const std::vector<size_t>& pos2);
@@ -45,7 +45,7 @@ public:
     // default constructor
     Searcher(const std::unordered_map<std::string,
               std::unordered_map<std::string, std::vector<size_t>>>& idx,
-             const TernarySearchTree* tst = nullptr);
+             const TernarySearchTree& tst);
 
     std::vector<std::pair<std::string, double>> search(const std::string& query);
 };
