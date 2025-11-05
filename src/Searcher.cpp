@@ -1,5 +1,4 @@
 
-
 #include <../include/Searcher.h>
 #include <iostream>
 #include <cmath>
@@ -16,8 +15,8 @@ std::vector<std::pair<std::string, double>> Searcher::search(const std::string& 
 
     auto results = chainedPositionalIntersect(index, queryTokens);
 
-    // Print 
-    std::cout << "PRINT : ";
+    // Print DEBUG
+    std::cout << "\n\nDEBUGGING PRINT w/ file and pos of searched : \n";
     for (const auto& [word, positions] : results) {
         std::cout << word << ": ";
         for (size_t pos : positions) {
@@ -25,6 +24,7 @@ std::vector<std::pair<std::string, double>> Searcher::search(const std::string& 
         }
         std::cout << "\n";
     }
+    std::cout << std::endl;
 
     return {};
     
