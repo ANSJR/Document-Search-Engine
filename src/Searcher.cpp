@@ -15,14 +15,17 @@ std::vector<std::pair<std::string, double>> Searcher::search(const std::string& 
 
     auto results = chainedPositionalIntersect(index, queryTokens);
 
-    // Print DEBUG
+    // DEBUG PRINT
     std::cout << "\n\nDEBUGGING PRINT w/ file and pos of searched : \n";
-    for (const auto& [word, positions] : results) {
-        std::cout << word << ": ";
-        for (size_t pos : positions) {
-            std::cout << pos << " ";
+    for (const auto& [word, docMap] : results) {
+        std::cout << word << ":\n";
+        for (const auto& [file, positions] : docMap) {
+            std::cout << "  " << file << " -> ";
+            for (size_t pos : positions) {
+                std::cout << pos << " ";
+            }
+            std::cout << "\n";
         }
-        std::cout << "\n";
     }
     std::cout << std::endl;
 
@@ -46,70 +49,72 @@ std::vector<size_t> Searcher::positionalIntersect(const std::vector<size_t>& pos
 
     return result;
 }
-std::unordered_map<std::string, std::vector<size_t>> Searcher::chainedPositionalIntersect(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>>& index,
-    const std::vector<std::string>& queryTokens) {
+std::unordered_map<std::string,std::unordered_map<std::string, std::vector<size_t>>> Searcher::chainedPositionalIntersect(
+const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>>& index,
+const std::vector<std::string>& queryTokens) {
 
-    if (queryTokens.empty()) return {};
+    using DocPosMap = std::unordered_map<std::string, std::vector<size_t>>; // Shorting the code
+    std::unordered_map<std::string, DocPosMap> finalResults; // word -> {doc -> pos}
 
-    auto token = index.find(queryTokens[0]);
-    if (token == index.end()) return {};
+    if (queryTokens.empty()) return finalResults;
 
-    // Creates current with all files and their pos of first token of query from index
-    std::unordered_map<std::string, std::vector<size_t>> currentToken = token->second;
+    auto firstIt = index.find(queryTokens[0]);
+    if (firstIt == index.end()) return finalResults;
 
-    // Iterate through next tokens in query
+    DocPosMap currentToken = firstIt->second;
+
+    // Iterate remaining tokens
     for (size_t i = 1; i < queryTokens.size(); ++i) {
         const std::string& token = queryTokens[i];
-        std::unordered_map<std::string, std::vector<size_t>> mergedNext;
+        std::vector<std::string> targetWords;
 
-        // Case 1 Exact match 
-        auto nextToken = index.find(token);
-        if (nextToken != index.end()) {
-            mergedNext = nextToken->second;
-        }
+        // Case 1: exact word exists
+        if (index.count(token)) {
+            targetWords.push_back(token);
+        } 
+        // Case 2: prefix match using TST
         else {
-            // Case 2 prefix match
-            std::vector<std::string> prefixMatches = tst.prefixSearch(token);
-            std::cout << "\n\n" << prefixMatches[0] << " " << prefixMatches[1] << std::endl;
-            if (prefixMatches.empty()) {
-                return {};
+            targetWords = {"orange", "organ", "oregon"}; // tst.prefixSearch(token);
+            if (targetWords.empty()) {
+                return finalResults; // no match, break early
             }
+        }
 
-            // Merge words that match prefix
-            for (const auto& possibleWord : prefixMatches) {
-                auto foundWord = index.find(possibleWord);
-                if (foundWord != index.end()) {
-                    for (const auto& [file, positions] : foundWord->second) {
-                        auto& entry = mergedNext[file];
-                        entry.insert(entry.end(), positions.begin(), positions.end());
+        // For each possible next word (including prefix expansions)
+        for (const auto& nextWord : targetWords) {
+            auto nextIt = index.find(nextWord);
+            if (nextIt == index.end()) continue;
+
+            const DocPosMap& nextMap = nextIt->second;
+            DocPosMap resultingFileAndPositions;
+
+            // intersect doc by doc
+            for (const auto& [file, pos1] : currentToken) {
+                auto found = nextMap.find(file);
+                if (found != nextMap.end()) {
+                    auto newPositions = positionalIntersect(pos1, found->second);
+                    if (!newPositions.empty()) {
+                        resultingFileAndPositions[file] = std::move(newPositions);
                     }
                 }
             }
-
-            // Sort and deduplicate merged positions
-            for (auto& [_, posVec] : mergedNext) {
-                std::sort(posVec.begin(), posVec.end());
-                posVec.erase(std::unique(posVec.begin(), posVec.end()), posVec.end());
+            // store nonempty results
+            if (!resultingFileAndPositions.empty()) {
+                finalResults[nextWord] = resultingFileAndPositions;
             }
         }
-
-        // Positional intersection
-        std::unordered_map<std::string, std::vector<size_t>> resultingFileAndPositions;
-        for (const auto& [file, positions1] : currentToken) {
-            auto found = mergedNext.find(file);
-            if (found != mergedNext.end()) {
-                auto newPositions = positionalIntersect(positions1, found->second);
-                if (!newPositions.empty()) {
-                    resultingFileAndPositions[file] = newPositions;
-                }
-            }
+        // If only one next word matched (normal case), move forward
+        if (targetWords.size() == 1 && finalResults.count(targetWords[0])) {
+            currentToken = std::move(finalResults[targetWords[0]]);
+            finalResults.clear(); // reset for next iteration
+        } else {
+            // break early, branched into multiple possiblitys
+            break;
         }
-        currentToken = std::move(resultingFileAndPositions);
-        if (currentToken.empty()) break;
     }
-
-    return currentToken;
+    return finalResults;
 }
+
 
 
 // will return a unsorted vector of this prefix partial token.
@@ -126,10 +131,14 @@ double Searcher::computeIDF(size_t docsContainingTerm, size_t totalDocs) const {
 }
 
 
-std::map<std::string, double> Searcher::computeScores( const std::vector<std::string>& expandedqueryTokens) const {
-        for(const auto& token : expandedqueryTokens) {
+// std::map<std::string, double> Searcher::computeScores(std::unordered_map<std::string, std::vector<size_t>>) const {
+//     const size_t termCountInDoc     = index.
+//     const size_t totalTermsInDoc    = 
+//     const size_t docsContainingTerm =
+//     const size_t totalDocs          =
+//     for(const auto& token : expandedqueryTokens) {
 
-        }
-        return {};
-    }
+//     }
+//     return {};
+// }
 
