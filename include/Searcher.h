@@ -28,9 +28,14 @@ private:
     Tokenizer tokenizer;
 
     std::vector<size_t> positionalIntersect(const std::vector<size_t>& pos1, const std::vector<size_t>& pos2);
-    
-    std::unordered_map<std::string, std::vector<size_t>> chainedPositionalIntersect(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>>& index,
+
+    std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>> chainedPositionalIntersect(
+    const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>>& index,
     const std::vector<std::string>& queryTokens);
+
+
+
+
 
     // will return a unsorted vector of this prefix partial token.
     std::vector<std::string> expandToken(const std::string& token) const;
@@ -46,6 +51,7 @@ public:
     Searcher(const std::unordered_map<std::string,
               std::unordered_map<std::string, std::vector<size_t>>>& idx,
              const TernarySearchTree& tst);
+             
 
     std::vector<std::pair<std::string, double>> search(const std::string& query);
 };

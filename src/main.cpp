@@ -47,7 +47,7 @@ int main() {
     Searcher searcher(index, tst);
 
     // Search query
-    std::string query = "apple banana";
+    std::string query = "apple banana or";
     searcher.search(query);
     std::cout << std::endl;
     tst.printTST();
