@@ -17,7 +17,8 @@ int main() {
     Indexer indexer(reader);
 
     std::vector<std::string> files = {"data/doc1.txt", "data/doc2.txt"};
-    indexer.buildIndex(files);
+    TernarySearchTree tst;
+    indexer.buildIndex(files, tst);
 
     auto index = indexer.getIndex();
     for (const auto& [word, values] : index) {
@@ -30,27 +31,33 @@ int main() {
         }
         std::cout << "\n";
     }
-    std::cout << std::endl << index.size();
-
-
-
-
-    TernarySearchTree tst;
-    tst.insert("apple");
-    tst.insert("banana");
-    tst.insert("orange");
-    tst.insert("organ");
-    tst.insert("orbla");
+    std::cout << std::endl << "^^^index size : " << index.size() << std::endl;
+    std::cout << "\n\nTST data : \n";
     tst.printTST();
 
     // Create Searcher
     Searcher searcher(index, tst);
 
     // Search query
-    std::string query = "apple banana or";
+    std::string query;
+    // std::cout << "\nEnter Query: ";
+    // std::getline(std::cin, query);
+
+    // Perform search the 4 cases
+    query = "apple";          // first word in document
     searcher.search(query);
+    query = "banana";         // middle word in document
+    searcher.search(query);
+    query = "apple banana";   // word + word
+    searcher.search(query);
+    query = "ban";            // prefix search
+    searcher.search(query);
+    query = "apple ban";      // word + prefix
+    searcher.search(query);
+    query = "or man";         // prefix + prefix
+    searcher.search(query);
+    // IMPORTANT prefix + prefix is fickely depending on the words in the documents
     std::cout << std::endl;
-    tst.printTST();
     
 
     return 0;

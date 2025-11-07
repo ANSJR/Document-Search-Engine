@@ -16,7 +16,7 @@ std::vector<std::pair<std::string, double>> Searcher::search(const std::string& 
     auto results = chainedPositionalIntersect(index, queryTokens);
 
     // DEBUG PRINT
-    std::cout << "\n\nDEBUGGING PRINT w/ file and pos of searched : \n";
+    std::cout << "\n\nDEBUGGING PRINT Query (" << query << ") : \n";
     for (const auto& [word, docMap] : results) {
         std::cout << word << ":\n";
         for (const auto& [file, positions] : docMap) {
@@ -53,34 +53,57 @@ std::unordered_map<std::string,std::unordered_map<std::string, std::vector<size_
 const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>>& index,
 const std::vector<std::string>& queryTokens) {
 
-    using DocPosMap = std::unordered_map<std::string, std::vector<size_t>>; // Shorting the code
-    std::unordered_map<std::string, DocPosMap> finalResults; // word -> {doc -> pos}
+    using DocPosMap = std::unordered_map<std::string, std::vector<size_t>>;
+    std::unordered_map<std::string, DocPosMap> finalResults;
 
     if (queryTokens.empty()) return finalResults;
 
-    auto firstIt = index.find(queryTokens[0]);
-    if (firstIt == index.end()) return finalResults;
+    // --- Handle first token (single word or prefix) ---
+    std::vector<std::string> firstMatches;
+    const std::string& firstToken = queryTokens[0];
 
-    DocPosMap currentToken = firstIt->second;
+    if (index.count(firstToken)) {
+        firstMatches.push_back(firstToken);
+    } else {
+        firstMatches = tst.prefixSearch(firstToken);
+        if (firstMatches.empty()) return finalResults;
+    }
 
-    // Iterate remaining tokens
+    // If query has only one token, return all matching words
+    if (queryTokens.size() == 1) {
+        for (const auto& word : firstMatches) {
+            finalResults[word] = index.at(word);
+        }
+        return finalResults;
+    }
+
+    // --- Multi-word query ---
+    DocPosMap currentToken;
+    bool firstWordSet = false;
+
+    for (const auto& word : firstMatches) {
+        auto it = index.find(word);
+        if (it != index.end()) {
+            currentToken = it->second;
+            firstWordSet = true;
+            break; // take the first match as starting point
+        }
+    }
+    if (!firstWordSet) return finalResults;
+
     for (size_t i = 1; i < queryTokens.size(); ++i) {
         const std::string& token = queryTokens[i];
         std::vector<std::string> targetWords;
 
-        // Case 1: exact word exists
         if (index.count(token)) {
             targetWords.push_back(token);
-        } 
-        // Case 2: prefix match using TST
-        else {
-            targetWords = {"orange", "organ", "oregon"}; // tst.prefixSearch(token);
-            if (targetWords.empty()) {
-                return finalResults; // no match, break early
-            }
+        } else {
+            targetWords = tst.prefixSearch(token);
+            if (targetWords.empty()) return finalResults;
         }
 
-        // For each possible next word (including prefix expansions)
+        std::unordered_map<std::string, DocPosMap> nextResults;
+
         for (const auto& nextWord : targetWords) {
             auto nextIt = index.find(nextWord);
             if (nextIt == index.end()) continue;
@@ -88,7 +111,6 @@ const std::vector<std::string>& queryTokens) {
             const DocPosMap& nextMap = nextIt->second;
             DocPosMap resultingFileAndPositions;
 
-            // intersect doc by doc
             for (const auto& [file, pos1] : currentToken) {
                 auto found = nextMap.find(file);
                 if (found != nextMap.end()) {
@@ -98,21 +120,30 @@ const std::vector<std::string>& queryTokens) {
                     }
                 }
             }
-            // store nonempty results
+
             if (!resultingFileAndPositions.empty()) {
-                finalResults[nextWord] = resultingFileAndPositions;
+                nextResults[nextWord] = resultingFileAndPositions;
             }
         }
-        // If only one next word matched (normal case), move forward
-        if (targetWords.size() == 1 && finalResults.count(targetWords[0])) {
-            currentToken = std::move(finalResults[targetWords[0]]);
-            finalResults.clear(); // reset for next iteration
+
+        if (nextResults.empty()) return {}; // no matches
+
+        if (targetWords.size() == 1) {
+            currentToken = nextResults[targetWords[0]];
         } else {
-            // break early, branched into multiple possiblitys
+            // multiple prefix expansions, stop chaining here
+            finalResults = nextResults;
             break;
         }
     }
+
+    if (finalResults.empty()) {
+        // keep only the last word's results
+        std::string lastWord = currentToken.begin()->first;
+        return {{ lastWord, currentToken }};
+    }
     return finalResults;
+
 }
 
 
