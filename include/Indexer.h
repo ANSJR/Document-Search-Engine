@@ -11,6 +11,7 @@
 
 #include "DocumentReader.h"
 #include "Tokenizer.h"
+#include "TernarySearchTree.h"
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -22,6 +23,7 @@ private:
 public:
     Indexer(DocumentReader& r);
     void buildIndex(const std::vector<std::string>& files);
+    void buildIndex(const std::vector<std::string>& files, TernarySearchTree& tst);
     const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>>& getIndex() const;
 };
 

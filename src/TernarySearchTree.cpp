@@ -42,11 +42,13 @@ TreeNode* TernarySearchTree::insertHelper(TreeNode* curr, const std::string& key
 
 void TernarySearchTree::prefixHelper(TreeNode* node, std::string current, std::vector<std::string>& results) const {
     if (!node) return;
-    current.push_back(node->data);
-    if (node->marked)
-        results.push_back(current);
+
     prefixHelper(node->lChild, current, results);
-    prefixHelper(node->mChild, current, results);
+    std::string nextCurrent = current + node->data;  // Append current node's char
+    if (node->marked) 
+        results.push_back(nextCurrent);
+
+    prefixHelper(node->mChild, nextCurrent, results);
     prefixHelper(node->rChild, current, results);
 }
 
@@ -60,24 +62,29 @@ std::vector<std::string> TernarySearchTree::prefixSearch(const std::string& pref
 
     while (node) {
         char c = prefix[index];
-        if (c < node->data)
-            node = node->lChild;
-        else if (c > node->data)
-            node = node->rChild;
-        else { // match
+        if (c < node->data) node = node->lChild;
+        else if (c > node->data) node = node->rChild;
+        else {
             index++;
             if (index == prefix.size())
-                break;  // found last prefix char
+                break; 
             node = node->mChild;
         }
     }
 
     if (!node) return results;
-    std::string current = prefix.substr(0, prefix.size() - 1);
 
-    prefixHelper(node, current, results);
+    if (node->marked)   // If the final prefix node is a complete word, add it
+        results.push_back(prefix);
+
+    prefixHelper(node->mChild, prefix, results); 
+    // Print results for debugging
+    for (const auto& res : results) {
+        std::cout << "Prefix match found: " << res << std::endl;
+    }
     return results;
 }
+
 
 
 void TernarySearchTree::traverseTST(TreeNode* root, char* buffer, int depth)
