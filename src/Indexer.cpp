@@ -7,7 +7,9 @@
  */
 
 #include "../include/Indexer.h"
+#include "../include/DocumentReaderFactory.h"
 #include <iostream>
+#include <memory>
 
 Indexer::Indexer(DocumentReader& r) : reader(r) {}
 
@@ -29,7 +31,10 @@ void Indexer::buildIndex(const std::vector<std::string>& files) {
 void Indexer::buildIndex(const std::vector<std::string>& files, TernarySearchTree& tst) {
     long long int totalTokensFiled = 0;
     for (const auto& filepath : files) {
-        std::string textString = reader.readText(filepath);
+        // std::string textString = reader.readText(filepath);
+        std::unique_ptr<DocumentReader> reader = DocumentReaderFactory::createReader(filepath);
+        std::string textString = reader->readText(filepath);
+        
         Tokenizer tokenizer;
         auto tokens = tokenizer.tokenize(textString);
         int i = 0;

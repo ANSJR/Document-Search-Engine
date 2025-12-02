@@ -44,8 +44,7 @@ private:
 
     double computeIDF(size_t docsContainingTerm, size_t totalDocs) const;
     // added previousToken
-    std::map<std::string, double> computeScores(
-        const std::vector<std::string>& expandedTokens) const;
+    std::vector<std::pair<std::string, double>> computeScores(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>>& results) const;
 public:
     // default constructor
     Searcher(const std::unordered_map<std::string,

@@ -18,7 +18,6 @@ std::vector<std::pair<std::string, double>> Searcher::search(const std::string& 
     // DEBUG PRINT
     std::cout << "\n\nDEBUGGING PRINT Query (" << query << ") : \n";
     for (const auto& [word, docMap] : results) {
-        std::cout << word << ":\n";
         for (const auto& [file, positions] : docMap) {
             std::cout << "  " << file << " -> ";
             for (size_t pos : positions) {
@@ -28,8 +27,8 @@ std::vector<std::pair<std::string, double>> Searcher::search(const std::string& 
         }
     }
     std::cout << std::endl;
-
-    return {};
+    auto rankedResults = computeScores(results);
+    return rankedResults;
     
 } 
 // Intersect positions of two tokens within the same document
@@ -162,14 +161,22 @@ double Searcher::computeIDF(size_t docsContainingTerm, size_t totalDocs) const {
 }
 
 
-// std::map<std::string, double> Searcher::computeScores(std::unordered_map<std::string, std::vector<size_t>>) const {
-//     const size_t termCountInDoc     = index.
-//     const size_t totalTermsInDoc    = 
-//     const size_t docsContainingTerm =
-//     const size_t totalDocs          =
-//     for(const auto& token : expandedqueryTokens) {
+std::vector<std::pair<std::string, double>> Searcher::computeScores(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>>& results) const {
+    std::vector<std::pair<std::string, double>> rankedDocs; // (doc, score)
+    size_t totalDocs = index.size();
 
-//     }
-//     return {};
-// }
+    for (const auto& [word, docMap] : results) {
+        size_t docsContaining = docMap.size();
+        double idf = std::log((double)totalDocs / (1.0 + docsContaining));
+
+        for (const auto& [doc, positions] : docMap) {
+            double tf = positions.size();
+            double score = tf * idf; // basic TF-IDF
+            rankedDocs.emplace_back(doc, score);
+        }
+    }
+    std::sort(rankedDocs.begin(), rankedDocs.end(),[](auto& a, auto& b) { return a.second > b.second; });
+    return rankedDocs;
+
+}
 

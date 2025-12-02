@@ -6,7 +6,7 @@
 
 #include "DocumentReader.h"
 #include "TxtReader.h"
-// #include "PdfReader.h"
+#include "PdfReader.h"
 #include <string>
 #include <memory> // For std::unique_ptr
 
