@@ -24,6 +24,8 @@ std::unique_ptr<DocumentReader> DocumentReaderFactory::createReader(const std::s
 
     if (ext == "txt")
         return std::make_unique<TxtReader>();
+    else if (ext == "md")
+        return std::make_unique<TxtReader>();
     else if (ext == "pdf")
         return std::make_unique<PdfReader>();
     else

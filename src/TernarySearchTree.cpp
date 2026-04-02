@@ -77,15 +77,15 @@ std::vector<std::string> TernarySearchTree::prefixSearch(const std::string& pref
     if (node->marked)   // If the final prefix node is a complete word, add it
         results.push_back(prefix);
 
-    prefixHelper(node->mChild, prefix, results); 
+    prefixHelper(node->mChild, prefix, results);
+     
     // Print results for debugging
+    std::cout << "DEBUGGING PREFIXS : " << std::endl;
     for (const auto& res : results) {
         std::cout << "Prefix match found: " << res << std::endl;
     }
     return results;
 }
-
-
 
 void TernarySearchTree::traverseTST(TreeNode* root, char* buffer, int depth)
 {

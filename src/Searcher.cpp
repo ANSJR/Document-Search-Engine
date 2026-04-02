@@ -1,6 +1,7 @@
 
 #include <../include/Searcher.h>
 #include <iostream>
+#include <fstream>
 #include <cmath>
 #include <algorithm>
 
@@ -178,5 +179,29 @@ std::vector<std::pair<std::string, double>> Searcher::computeScores(const std::u
     std::sort(rankedDocs.begin(), rankedDocs.end(),[](auto& a, auto& b) { return a.second > b.second; });
     return rankedDocs;
 
+}
+// NEEDS OPTIMIZING 
+void Searcher::printWordContext(const std::string& filepath, size_t tokenIndex, size_t window) {
+    std::ifstream file(filepath);
+    if (!file) return;
+
+    std::string text((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+    Tokenizer tokenizer;
+    auto tokens = tokenizer.tokenize(text);
+
+    if (tokenIndex >= tokens.size()) return;
+
+    size_t start = (tokenIndex >= window) ? tokenIndex - window : 0;
+    size_t end = std::min(tokenIndex + window, tokens.size() - 1);
+
+    std::cout << "... ";
+    for (size_t i = start; i <= end; ++i) {
+        if (i == tokenIndex)
+            std::cout << "[" << tokens[i] << "] ";
+        else
+            std::cout << tokens[i] << " ";
+    }
+    std::cout << "...\n";
 }
 

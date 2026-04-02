@@ -17,7 +17,7 @@ int main() {
     TxtReader reader;
     Indexer indexer(reader);
 
-    std::vector<std::string> files = {"data/doc1.txt", "data/doc2.txt", "data/doc3.txt", "data/BBcase.txt" ,"data/Reasoning.pdf"};
+    std::vector<std::string> files = {"data/doc1.txt", "data/doc2.txt", "data/doc3.txt", "data/doc4.md", "data/BBcase.txt","data/Reasoning.pdf"};
     // std::vector<std::string> files = {"data/doc1.txt"};
     TernarySearchTree tst;
     indexer.buildIndex(files, tst);
@@ -67,5 +67,9 @@ int main() {
         std::cout << "  " << doc << " (score: " << std::fixed << std::setprecision(2) << score << ")\n";
     }
 
+    std::string file = "data/BBcase.txt";
+    size_t pos = 1833; // first position you saw
+
+    Searcher::printWordContext("data/doc4.md", 2, 5);
     return 0;
 }

@@ -11,6 +11,7 @@
 # Low Priority
 - BM25 ranking model
 - Save / load index to disk
+- Optimize context searching 
 
 ## Experimental Ideas
 - Web UI (React or simple HTML)
@@ -22,3 +23,7 @@
 ## Known Issues
 - Prefix+prefix are fickel to work (Pattern Unknown)
 - Index build slow for large files (needs parallelism)
+
+
+
+- FIXEDish Found grammer bug where single quotation marks don't store due to it being unicode which is not char sized

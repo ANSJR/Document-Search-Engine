@@ -51,7 +51,7 @@ public:
               std::unordered_map<std::string, std::vector<size_t>>>& idx,
              const TernarySearchTree& tst);
              
-
+    static void printWordContext(const std::string& filepath, size_t tokenIndex, size_t window = 5);
     std::vector<std::pair<std::string, double>> search(const std::string& query);
 };
 
