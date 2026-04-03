@@ -12,16 +12,25 @@
 #include "../include/TernarySearchTree.h"
 #include <iomanip>
 #include <iostream>
+#include <filesystem>
 
 int main() {
     TxtReader reader;
     Indexer indexer(reader);
 
-    std::vector<std::string> files = {"data/doc1.txt", "data/doc2.txt", "data/doc3.txt", "data/doc4.md", "data/BBcase.txt","data/Reasoning.pdf"};
-    // std::vector<std::string> files = {"data/doc1.txt"};
+    std::vector<std::string> files;
+    for (const auto& entry : std::filesystem::directory_iterator("data")) {
+        if (entry.is_regular_file() && (entry.path().extension() == ".txt" || entry.path().extension() == ".md")) {
+            files.push_back(entry.path().string());
+        }
+    }
+    // Print to verify
+    // for (const auto& file : files) {
+    //     std::cout << file << std::endl;
+    // }
+
     TernarySearchTree tst;
     indexer.buildIndex(files, tst);
-
     auto index = indexer.getIndex();
     // for (const auto& [word, values] : index) {
     //     std::cout << word << ": ";
@@ -34,7 +43,7 @@ int main() {
     //     std::cout << "\n";
     // }
     // std::cout << std::endl << "^^^index size : " << index.size() << std::endl;
-    std::cout << "\n\nTST data : \n";
+    // std::cout << "\n\nTST data : \n";
     // tst.printTST();
 
     // Create Searcher
@@ -67,9 +76,8 @@ int main() {
         std::cout << "  " << doc << " (score: " << std::fixed << std::setprecision(2) << score << ")\n";
     }
 
-    std::string file = "data/BBcase.txt";
-    size_t pos = 1833; // first position you saw
+    //                          file name,        pos,    width
+    Searcher::printWordContext("data\pg2600.txt", 159327, 10);
 
-    Searcher::printWordContext("data/doc4.md", 2, 5);
     return 0;
 }

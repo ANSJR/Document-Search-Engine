@@ -21,6 +21,7 @@
 - 
 
 ## Known Issues
+- Found that searcher is creating a copy of index/TST and not referencing 
 - Prefix+prefix are fickel to work (Pattern Unknown)
 - Index build slow for large files (needs parallelism)
 
