@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -g -O0 -fsanitize=address -Iinclude
+CXXFLAGS = -std=c++17 -Wall -Wextra -g -O0 -Iinclude
 
 SRC = $(wildcard src/*.cpp)
 OBJ = $(SRC:.cpp=.o)
