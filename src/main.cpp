@@ -68,7 +68,6 @@ int main() {
     // query = "or man";         // prefix + prefix
     // searcher.search(query);
     // IMPORTANT prefix + prefix is fickely depending on the words in the documents
-    std::cout << std::endl;
 
     // Display search results
     auto results = searcher.search(query);
@@ -77,7 +76,7 @@ int main() {
     }
 
     //                          file name,        pos,    width
-    Searcher::printWordContext("data\pg2600.txt", 159327, 10);
+    Searcher::printWordContext("data\WarAndPeace.txt", 19833, 10);
 
     return 0;
 }

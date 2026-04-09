@@ -13,6 +13,7 @@ Searcher::Searcher(const std::unordered_map<std::string,
 std::vector<std::pair<std::string, double>> Searcher::search(const std::string& query) {
     std::vector<std::string> queryTokens = tokenizer.simpleTokenize(query);
     if (queryTokens.empty()) return {};
+    std::cout << "TOTAL TOKENS : " << tokenizer.getTotalTokens(query) << std::endl;
 
     auto results = chainedPositionalIntersect(index, queryTokens);
 
@@ -21,13 +22,12 @@ std::vector<std::pair<std::string, double>> Searcher::search(const std::string& 
         for (const auto& [file, positions] : docMap) {
             std::cout << "  " << file << " -> ";
             for (const WordLocation& pos : positions) {
-                std::cout << pos.tokenPos << " ";
+                std::cout << "(" << pos.tokenPos << "," << pos.byteOffset << "," << pos.length << ") ";
             }
             std::cout << "\n";
         }
     }
     std::cout << std::endl;
-
     auto rankedResults = computeScores(results);
     return rankedResults;
 }
