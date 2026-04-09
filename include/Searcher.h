@@ -6,6 +6,7 @@
 #include "Tokenizer.h"
 #include "TernarySearchTree.h"
 #include "Indexer.h"
+#include "WordLocation.h"
 #include <vector>
 #include <unordered_map>
 #include <map>
@@ -23,14 +24,14 @@
  */
 class Searcher {
 private:
-    const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>>& index;
+    const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>& index;
     const TernarySearchTree& tst;
     Tokenizer tokenizer;
 
-    std::vector<size_t> positionalIntersect(const std::vector<size_t>& pos1, const std::vector<size_t>& pos2);
+    std::vector<WordLocation> positionalIntersect(const std::vector<WordLocation>& pos1, const std::vector<WordLocation>& pos2);
 
-    std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>> chainedPositionalIntersect(
-    const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>>& index,
+    std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>> chainedPositionalIntersect(
+    const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>& index,
     const std::vector<std::string>& queryTokens);
 
 
@@ -44,11 +45,10 @@ private:
 
     double computeIDF(size_t docsContainingTerm, size_t totalDocs) const;
     // added previousToken
-    std::vector<std::pair<std::string, double>> computeScores(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>>& results) const;
+    std::vector<std::pair<std::string, double>> computeScores(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>& results) const;
 public:
     // default constructor
-    Searcher(const std::unordered_map<std::string,
-              std::unordered_map<std::string, std::vector<size_t>>>& idx,
+    Searcher(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>& idx,
              const TernarySearchTree& tst);
              
     static void printWordContext(const std::string& filepath, size_t tokenIndex, size_t window = 5);

@@ -11,10 +11,13 @@
 
 #include <vector>
 #include <string>
+#include "WordLocation.h"
+
 
 class Tokenizer {
 public:
-    std::vector<std::string> tokenize(const std::string& text);
+    std::vector<std::string> simpleTokenize(const std::string& text);
+    std::vector<std::pair<std::string, WordLocation>> tokenize(const std::string& text);
 };
 
 #endif

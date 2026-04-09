@@ -7,58 +7,54 @@
 
 
 Searcher::Searcher(const std::unordered_map<std::string,
-            std::unordered_map<std::string, std::vector<size_t>>>& idx,
+            std::unordered_map<std::string, std::vector<WordLocation>>>& idx,
             const TernarySearchTree& tst) : index(idx), tst(tst) {}
 
 std::vector<std::pair<std::string, double>> Searcher::search(const std::string& query) {
-    std::vector<std::string> queryTokens = tokenizer.tokenize(query);
+    std::vector<std::string> queryTokens = tokenizer.simpleTokenize(query);
     if (queryTokens.empty()) return {};
 
     auto results = chainedPositionalIntersect(index, queryTokens);
 
-    // DEBUG PRINT
     std::cout << "\n\nDEBUGGING PRINT Query (" << query << ") : \n";
     for (const auto& [word, docMap] : results) {
         for (const auto& [file, positions] : docMap) {
             std::cout << "  " << file << " -> ";
-            for (size_t pos : positions) {
-                std::cout << pos << " ";
+            for (const WordLocation& pos : positions) {
+                std::cout << pos.tokenPos << " ";
             }
             std::cout << "\n";
         }
     }
     std::cout << std::endl;
+
     auto rankedResults = computeScores(results);
     return rankedResults;
-    
-} 
+}
 // Intersect positions of two tokens within the same document
-std::vector<size_t> Searcher::positionalIntersect(const std::vector<size_t>& pos1, const std::vector<size_t>& pos2) {
-    std::vector<size_t> result;
+std::vector<WordLocation> Searcher::positionalIntersect(const std::vector<WordLocation>& pos1, const std::vector<WordLocation>& pos2) {
+    std::vector<WordLocation> result;
     size_t i = 0, j = 0;
 
     while (i < pos1.size() && j < pos2.size()) {
-        if (pos1[i] + 1 == pos2[j]) {
+        if (pos1[i].tokenPos + 1 == pos2[j].tokenPos) {
             result.push_back(pos2[j]);
             i++;
             j++;
         }
-        else if (pos1[i] + 1 < pos2[j]) i++;
+        else if (pos1[i].tokenPos + 1 < pos2[j].tokenPos) i++;
         else j++;
     }
-
     return result;
 }
-std::unordered_map<std::string,std::unordered_map<std::string, std::vector<size_t>>> Searcher::chainedPositionalIntersect(
-const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>>& index,
-const std::vector<std::string>& queryTokens) {
-
-    using DocPosMap = std::unordered_map<std::string, std::vector<size_t>>;
+std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>
+Searcher::chainedPositionalIntersect(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>& index, const std::vector<std::string>& queryTokens
+) {
+    using DocPosMap = std::unordered_map<std::string, std::vector<WordLocation>>;
     std::unordered_map<std::string, DocPosMap> finalResults;
 
     if (queryTokens.empty()) return finalResults;
 
-    // --- Handle first token (single word or prefix) ---
     std::vector<std::string> firstMatches;
     const std::string& firstToken = queryTokens[0];
 
@@ -69,7 +65,6 @@ const std::vector<std::string>& queryTokens) {
         if (firstMatches.empty()) return finalResults;
     }
 
-    // If query has only one token, return all matching words
     if (queryTokens.size() == 1) {
         for (const auto& word : firstMatches) {
             finalResults[word] = index.at(word);
@@ -77,16 +72,17 @@ const std::vector<std::string>& queryTokens) {
         return finalResults;
     }
 
-    // --- Multi-word query ---
     DocPosMap currentToken;
+    std::string currentWord;
     bool firstWordSet = false;
 
     for (const auto& word : firstMatches) {
         auto it = index.find(word);
         if (it != index.end()) {
             currentToken = it->second;
+            currentWord = word;
             firstWordSet = true;
-            break; // take the first match as starting point
+            break;
         }
     }
     if (!firstWordSet) return finalResults;
@@ -125,25 +121,20 @@ const std::vector<std::string>& queryTokens) {
                 nextResults[nextWord] = resultingFileAndPositions;
             }
         }
-
-        if (nextResults.empty()) return {}; // no matches
-
+        if (nextResults.empty()) return {};
         if (targetWords.size() == 1) {
+            currentWord = targetWords[0];
             currentToken = nextResults[targetWords[0]];
         } else {
-            // multiple prefix expansions, stop chaining here
             finalResults = nextResults;
             break;
         }
     }
 
     if (finalResults.empty()) {
-        // keep only the last word's results
-        std::string lastWord = currentToken.begin()->first;
-        return {{ lastWord, currentToken }};
+        return {{currentWord, currentToken}};
     }
     return finalResults;
-
 }
 
 
@@ -162,7 +153,7 @@ double Searcher::computeIDF(size_t docsContainingTerm, size_t totalDocs) const {
 }
 
 
-std::vector<std::pair<std::string, double>> Searcher::computeScores(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<size_t>>>& results) const {
+std::vector<std::pair<std::string, double>> Searcher::computeScores(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>& results) const {
     std::vector<std::pair<std::string, double>> rankedDocs; // (doc, score)
     size_t totalDocs = index.size();
 
@@ -171,37 +162,37 @@ std::vector<std::pair<std::string, double>> Searcher::computeScores(const std::u
         double idf = std::log((double)totalDocs / (1.0 + docsContaining));
 
         for (const auto& [doc, positions] : docMap) {
-            double tf = positions.size();
+            double tf = static_cast<double>(positions.size());
             double score = tf * idf; // basic TF-IDF
             rankedDocs.emplace_back(doc, score);
         }
     }
-    std::sort(rankedDocs.begin(), rankedDocs.end(),[](auto& a, auto& b) { return a.second > b.second; });
-    return rankedDocs;
 
+    std::sort(rankedDocs.begin(), rankedDocs.end(),[](const auto& a, const auto& b) {return a.second > b.second;});
+    return rankedDocs;
 }
 // NEEDS OPTIMIZING 
 void Searcher::printWordContext(const std::string& filepath, size_t tokenIndex, size_t window) {
-    std::ifstream file(filepath);
-    if (!file) return;
+    // std::ifstream file(filepath);
+    // if (!file) return;
 
-    std::string text((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    // std::string text((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
-    Tokenizer tokenizer;
-    auto tokens = tokenizer.tokenize(text);
+    // Tokenizer tokenizer;
+    // auto tokens = tokenizer.tokenize(text);
 
-    if (tokenIndex >= tokens.size()) return;
+    // if (tokenIndex >= tokens.size()) return;
 
-    size_t start = (tokenIndex >= window) ? tokenIndex - window : 0;
-    size_t end = std::min(tokenIndex + window, tokens.size() - 1);
+    // size_t start = (tokenIndex >= window) ? tokenIndex - window : 0;
+    // size_t end = std::min(tokenIndex + window, tokens.size() - 1);
 
-    std::cout << "... ";
-    for (size_t i = start; i <= end; ++i) {
-        if (i == tokenIndex)
-            std::cout << "[" << tokens[i] << "] ";
-        else
-            std::cout << tokens[i] << " ";
-    }
-    std::cout << "...\n";
+    // std::cout << "... ";
+    // for (size_t i = start; i <= end; ++i) {
+    //     if (i == tokenIndex)
+    //         std::cout << "[" << tokens[i] << "] ";
+    //     else
+    //         std::cout << tokens[i] << " ";
+    // }
+    // std::cout << "...\n";
 }
 

@@ -9,8 +9,9 @@
 #include <sstream>
 #include <string>
 #include <algorithm>
+#include <fstream>
 
-std::vector<std::string> Tokenizer::tokenize(const std::string& text) {
+std::vector<std::string> Tokenizer::simpleTokenize(const std::string& text) {
     std::vector<std::string> tokens;
     std::string current;
     for (int i = 0; i < text.size(); i++) {
@@ -31,5 +32,52 @@ std::vector<std::string> Tokenizer::tokenize(const std::string& text) {
         }
     }
     if (!current.empty()) tokens.push_back(current);
+    return tokens;
+}
+std::vector<std::pair<std::string, WordLocation>> Tokenizer::tokenize(const std::string& text) {
+    std::vector<std::pair<std::string, WordLocation>> tokens;
+    std::string current;
+    std::streampos wordStart = -1;
+    size_t byteLength = 0;
+    size_t tokenPos = 0;
+
+    for (size_t i = 0; i < text.size(); i++) {
+        char c = text[i];
+        size_t consumedBytes = 1;
+        bool isTokenChar = false;
+        // normalize curly apostrophe → ASCII '
+        if ((unsigned char)c == 0xE2 &&
+            i + 2 < text.size() &&
+            (unsigned char)text[i+1] == 0x80 &&
+            ((unsigned char)text[i+2] == 0x99 || (unsigned char)text[i+2] == 0x98)) {
+            c = '\'';
+            consumedBytes = 3;
+            isTokenChar = true;
+        }
+        else if (std::isalnum(static_cast<unsigned char>(c)) || c == '\'' || c == '-') {
+            c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+            isTokenChar = true;
+        }
+        if (isTokenChar) {
+            if (current.empty()) {
+                wordStart = static_cast<std::streampos>(i);
+                byteLength = 0;
+            }
+            current += c;
+            byteLength += consumedBytes;
+            if (consumedBytes == 3) i += 2; // skip utf-8 bytes
+        }
+        else if (!current.empty()) {
+            tokens.push_back({current,WordLocation{tokenPos, wordStart, byteLength}});
+            current.clear();
+            wordStart = -1;
+            byteLength = 0;
+            tokenPos++;
+        }
+    }
+    if (!current.empty()) {
+        tokens.push_back({current, WordLocation{tokenPos, wordStart, byteLength}});
+    }
+
     return tokens;
 }
