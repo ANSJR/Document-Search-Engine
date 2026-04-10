@@ -1,14 +1,11 @@
-
 #include <../include/TernarySearchTree.h>
-#include <iostream>
-#include <iomanip>
-#include <vector>
+
 
 
 
 TreeNode::TreeNode(char data) : data(data), marked(false), lChild(nullptr), mChild(nullptr), rChild(nullptr) {}
 TreeNode::TreeNode(bool marked) : marked(marked), lChild(nullptr), mChild(nullptr), rChild(nullptr) {}
-TreeNode::TreeNode(char data, bool marked) : data(data), marked(false), lChild(nullptr), mChild(nullptr), rChild(nullptr) {}
+TreeNode::TreeNode(char data, bool marked) : data(data), marked(marked), lChild(nullptr), mChild(nullptr), rChild(nullptr) {}
 TreeNode::TreeNode(char data, TreeNode* lChild, TreeNode* mChild, TreeNode* rChild) : data(data), marked(false), lChild(lChild), mChild(mChild), rChild(rChild) {}
 
 
@@ -21,7 +18,7 @@ void TernarySearchTree::insert(const std::string& key) {
     if (key.empty()) {return;}
     root = insertHelper(root, key, 0);
 }
-TreeNode* TernarySearchTree::insertHelper(TreeNode* curr, const std::string& key, int keyIndex) {
+TreeNode* TernarySearchTree::insertHelper(TreeNode* curr, const std::string& key, size_t keyIndex) {
     if (curr == nullptr) {
         curr = new TreeNode(key[keyIndex]);
     }
@@ -58,7 +55,7 @@ std::vector<std::string> TernarySearchTree::prefixSearch(const std::string& pref
     if (!root || prefix.empty()) return results;
 
     TreeNode* node = root;
-    int index = 0;
+    size_t index = 0;
 
     while (node) {
         char c = prefix[index];

@@ -9,10 +9,13 @@
 #ifndef TOKENIZER_H
 #define TOKENIZER_H
 
+#include "WordLocation.h"
+#include <sstream>
+#include <string>
+#include <algorithm>
+#include <fstream>
 #include <vector>
 #include <string>
-#include "WordLocation.h"
-
 
 class Tokenizer {
 public:

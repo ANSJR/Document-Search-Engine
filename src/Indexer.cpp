@@ -7,17 +7,14 @@
  */
 
 #include "../include/Indexer.h"
-#include "../include/DocumentReaderFactory.h"
-#include <iostream>
-#include <memory>
 
-Indexer::Indexer(DocumentReader& r) : reader(r) {}
+Indexer::Indexer() {}
 
 void Indexer::buildIndex(const std::vector<std::string>& files) {
     long long int totalTokensFiled = 0;
 
     for (const auto& filepath : files) {
-        std::string textString = reader.readText(filepath);
+        std::string textString = readText(filepath);
         Tokenizer tokenizer;
         auto tokens = tokenizer.tokenize(textString);
         for (const auto& [token, loc] : tokens) {
@@ -32,8 +29,7 @@ void Indexer::buildIndex(const std::vector<std::string>& files) {
 void Indexer::buildIndex(const std::vector<std::string>& files, TernarySearchTree& tst) {
     long long int totalTokensFiled = 0;
     for (const auto& filepath : files) {
-        std::unique_ptr<DocumentReader> reader = DocumentReaderFactory::createReader(filepath);
-        std::string textString = reader->readText(filepath);
+        std::string textString = readText(filepath);
 
         Tokenizer tokenizer;
         auto tokens = tokenizer.tokenize(textString);
@@ -50,4 +46,11 @@ void Indexer::buildIndex(const std::vector<std::string>& files, TernarySearchTre
 
 const std::unordered_map<std::string,std::unordered_map<std::string, std::vector<WordLocation>>>& Indexer::getIndex() const {
     return index;
+}
+
+std::string Indexer::readText(const std::string& filePath) {
+    std::ifstream file(filePath);
+    std::ostringstream buffer; // in-memory stream, dynamically sized std::string that is stored internally
+    buffer << file.rdbuf(); // reads data from source buffer and writes to internally stored string
+    return buffer.str(); // buffer.str returns finalized internally stored string
 }

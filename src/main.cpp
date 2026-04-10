@@ -6,7 +6,6 @@
  * and demonstrates the basic indexing pipeline.
  */
 
-#include "../include/TxtReader.h"
 #include "../include/Indexer.h"
 #include "../include/Searcher.h"
 #include "../include/TernarySearchTree.h"
@@ -15,8 +14,7 @@
 #include <filesystem>
 
 int main() {
-    TxtReader reader;
-    Indexer indexer(reader);
+    Indexer indexer;
 
     std::vector<std::string> files;
     for (const auto& entry : std::filesystem::directory_iterator("data")) {

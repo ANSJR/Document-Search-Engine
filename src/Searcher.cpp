@@ -1,9 +1,5 @@
-
 #include <../include/Searcher.h>
-#include <iostream>
-#include <fstream>
-#include <cmath>
-#include <algorithm>
+
 
 
 Searcher::Searcher(const std::unordered_map<std::string,

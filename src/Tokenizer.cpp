@@ -6,10 +6,6 @@
  */
 
 #include "../include/Tokenizer.h"
-#include <sstream>
-#include <string>
-#include <algorithm>
-#include <fstream>
 
 std::vector<std::string> Tokenizer::simpleTokenize(const std::string& text) {
     std::vector<std::string> tokens;

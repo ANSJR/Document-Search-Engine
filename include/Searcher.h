@@ -7,9 +7,15 @@
 #include "TernarySearchTree.h"
 #include "Indexer.h"
 #include "WordLocation.h"
+
+#include <iostream>
+#include <fstream>
+#include <cmath>
+#include <algorithm>
 #include <vector>
 #include <unordered_map>
 #include <map>
+
 
 /**
  * Handles all search operations over built index :

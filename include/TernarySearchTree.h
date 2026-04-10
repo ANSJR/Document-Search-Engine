@@ -1,6 +1,9 @@
 
 #ifndef TERNARYSEARCHTREE_H
 #define TERNARYSEARCHTREE_H
+#include <iostream>
+#include <iomanip>
+#include <vector>
 #include <string>
 #include <vector>
 
@@ -21,7 +24,7 @@ private:
     TreeNode* root;
 
     void traverseTST(TreeNode* root, char* buffer, int depth);
-    TreeNode* insertHelper(TreeNode* curr, const std::string& key, int keyIndex);
+    TreeNode* insertHelper(TreeNode* curr, const std::string& key, size_t keyIndex);
 public:
     TernarySearchTree();
     ~TernarySearchTree();
