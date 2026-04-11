@@ -34,12 +34,21 @@ void Indexer::buildIndex(const std::vector<std::string>& files, TernarySearchTre
         Tokenizer tokenizer;
         auto tokens = tokenizer.tokenize(textString);
         for (const auto& [token, loc] : tokens) {
+            fileToTerms[filepath].insert(token);
             index[token][filepath].push_back(loc);
             tst.insert(token);
         }
         totalTokensFiled += static_cast<long long>(tokens.size());
     }
-
+    // fileToTerms DEBUG
+    // for (const auto& [file, terms] : fileToTerms) {
+    //     std::cout << "File: " << file 
+    //             << " | unique terms: " << terms.size() << "\n";
+    //     for (const auto& word : terms) {
+    //         std::cout << "  - " << word << "\n";
+    //     }
+    // }
+    
     // std::cout << "Total files " << files.size() << ", tokens filed "
     //           << totalTokensFiled << " :" << std::endl;
 }

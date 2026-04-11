@@ -17,6 +17,7 @@
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <string>
 
@@ -24,6 +25,7 @@
 
 class Indexer {
 private:
+    std::unordered_map<std::string, std::unordered_set<std::string>> fileToTerms;
     std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>> index;
 public:
     Indexer();

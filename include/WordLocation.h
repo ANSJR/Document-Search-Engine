@@ -1,7 +1,5 @@
 #ifndef WORDLOCATION_H
 #define WORDLOCATION_H
-#include <cstddef>
-#include <fstream>
 
 
 struct WordLocation {
