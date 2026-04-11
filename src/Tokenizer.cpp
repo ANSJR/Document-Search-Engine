@@ -54,7 +54,6 @@ std::vector<std::pair<std::string, WordLocation>> Tokenizer::tokenize(const std:
     std::vector<std::pair<std::string, WordLocation>> tokens;
     std::string current;
     std::streampos wordStart = -1;
-    size_t byteLength = 0;
     size_t tokenPos = 0;
 
     for (size_t i = 0; i < text.size(); i++) {
@@ -77,22 +76,19 @@ std::vector<std::pair<std::string, WordLocation>> Tokenizer::tokenize(const std:
         if (isTokenChar) {
             if (current.empty()) {
                 wordStart = static_cast<std::streampos>(i);
-                byteLength = 0;
             }
             current += c;
-            byteLength += consumedBytes;
-            if (consumedBytes == 3) i += 2; // skip utf-8 bytes
+            if (consumedBytes == 3) i += 2;
         }
         else if (!current.empty()) {
-            tokens.push_back({current,WordLocation{tokenPos, wordStart, byteLength}});
+            tokens.push_back({current, WordLocation{tokenPos, wordStart}});
             current.clear();
             wordStart = -1;
-            byteLength = 0;
             tokenPos++;
         }
     }
     if (!current.empty()) {
-        tokens.push_back({current, WordLocation{tokenPos, wordStart, byteLength}});
+        tokens.push_back({current, WordLocation{tokenPos, wordStart}});
     }
 
     return tokens;

@@ -6,7 +6,7 @@ Searcher::Searcher(const std::unordered_map<std::string,
             std::unordered_map<std::string, std::vector<WordLocation>>>& idx,
             const TernarySearchTree& tst) : index(idx), tst(tst) {}
 
-std::vector<std::pair<std::string, double>> Searcher::search(const std::string& query) {
+std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>> Searcher::search(const std::string& query) {
     std::vector<std::string> queryTokens = tokenizer.simpleTokenize(query);
     if (queryTokens.empty()) return {};
     std::cout << "TOTAL TOKENS : " << tokenizer.getTotalTokens(query) << std::endl;
@@ -18,14 +18,13 @@ std::vector<std::pair<std::string, double>> Searcher::search(const std::string& 
         for (const auto& [file, positions] : docMap) {
             std::cout << "  " << file << " -> ";
             for (const WordLocation& pos : positions) {
-                std::cout << "(" << pos.tokenPos << "," << pos.byteOffset << "," << pos.length << ") ";
+                std::cout << "(" << pos.tokenPos << "," << pos.byteOffset << ") ";
             }
             std::cout << "\n";
         }
     }
     std::cout << std::endl;
-    auto rankedResults = computeScores(results);
-    return rankedResults;
+    return results;
 }
 // Intersect positions of two tokens within the same document
 std::vector<WordLocation> Searcher::positionalIntersect(const std::vector<WordLocation>& pos1, const std::vector<WordLocation>& pos2) {
@@ -167,28 +166,5 @@ std::vector<std::pair<std::string, double>> Searcher::computeScores(const std::u
     std::sort(rankedDocs.begin(), rankedDocs.end(),[](const auto& a, const auto& b) {return a.second > b.second;});
     return rankedDocs;
 }
-// NEEDS OPTIMIZING 
-void Searcher::printWordContext(const std::string& filepath, size_t tokenIndex, size_t window) {
-    // std::ifstream file(filepath);
-    // if (!file) return;
 
-    // std::string text((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-
-    // Tokenizer tokenizer;
-    // auto tokens = tokenizer.tokenize(text);
-
-    // if (tokenIndex >= tokens.size()) return;
-
-    // size_t start = (tokenIndex >= window) ? tokenIndex - window : 0;
-    // size_t end = std::min(tokenIndex + window, tokens.size() - 1);
-
-    // std::cout << "... ";
-    // for (size_t i = start; i <= end; ++i) {
-    //     if (i == tokenIndex)
-    //         std::cout << "[" << tokens[i] << "] ";
-    //     else
-    //         std::cout << tokens[i] << " ";
-    // }
-    // std::cout << "...\n";
-}
 
