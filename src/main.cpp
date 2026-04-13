@@ -22,52 +22,12 @@ int main() {
     }
 
     engine.indexFiles(files);
-    
-    // for (const auto& [word, values] : index) {
-    //     std::cout << word << ": ";
-    //     for (const auto& [fileName, Positions] : values){
-    //         std::cout << fileName << " ";
-    //         for (const auto& pos : Positions){
-    //             std::cout << pos << ", ";
-    //         }
-    //     }
-    //     std::cout << "\n";
-    // }
-    // std::cout << std::endl << "^^^index size : " << index.size() << std::endl;
-    // std::cout << "\n\nTST data : \n";
-    // tst.printTST();
-
-    // Create Searcher
 
     // Search query
     std::string query;
     std::cout << "\nEnter Query: ";
     std::getline(std::cin, query);
     engine.search(query);
-
-    // Perform search the 4 cases
-    // query = "apple";          // first word in document
-    // searcher.search(query);
-    // query = "banana";         // middle word in document
-    // searcher.search(query);
-    // query = "apple banana";   // word + word
-    // searcher.search(query);
-    // query = "ban";            // prefix search
-    // searcher.search(query);
-    // query = "apple ban";      // word + prefix
-    // searcher.search(query);
-    // query = "or man";         // prefix + prefix
-    // searcher.search(query);
-    // IMPORTANT prefix + prefix is fickely depending on the words in the documents
-
-    // Display search results
-    // auto results = searcher.search(query);
-    // for (const auto& [doc, score] : results) {
-    //     std::cout << "  " << doc << " (score: " << std::fixed << std::setprecision(2) << score << ")\n";
-    // }
-
-    //                          file name,        pos,    width
-    // Searcher::printWordContext("data\WarAndPeace.txt", 19833, 10);
-
+    std::cout << "EXITING CODE";
     return 0;
 }

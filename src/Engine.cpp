@@ -23,8 +23,6 @@ std::vector<SearchResult> Engine::search(const std::string& query) const {
 
             std::cout << "\n";
         }
-
-        std::cout << "----------------------\n";
     }
 
     std::cout << "=======================\n";

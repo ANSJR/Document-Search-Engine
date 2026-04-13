@@ -132,13 +132,6 @@ Searcher::chainedPositionalIntersect(const std::unordered_map<std::string, std::
     return finalResults;
 }
 
-
-
-// will return a unsorted vector of this prefix partial token.
-std::vector<std::string> Searcher::expandToken(const std::string& token) const {
-    return {};
-}
-
 double Searcher::computeTF(size_t termCountInDoc, size_t totalTermsInDoc) const {
     return (static_cast<double>(termCountInDoc) / totalTermsInDoc);
 }

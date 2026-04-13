@@ -10,7 +10,7 @@
 std::vector<std::string> Tokenizer::simpleTokenize(const std::string& text) {
     std::vector<std::string> tokens;
     std::string current;
-    for (int i = 0; i < text.size(); i++) {
+    for (size_t  i = 0; i < text.size(); i++) {
         char c = text[i];
 
         // converting single quotation mark to ascii
@@ -33,7 +33,7 @@ std::vector<std::string> Tokenizer::simpleTokenize(const std::string& text) {
 std::size_t Tokenizer::getTotalTokens(const std::string& text) {
     std::string current;
     size_t TotalTokens = 1;
-    for (int i = 0; i < text.size(); i++) {
+    for (size_t i = 0; i < text.size(); i++) {
         char c = text[i];
         // converting single quotation mark to ascii
         if ((unsigned char)c == 0xE2 && i + 2 < text.size() && (unsigned char)text[i+1] == 0x80 &&
@@ -61,10 +61,8 @@ std::vector<std::pair<std::string, WordLocation>> Tokenizer::tokenize(const std:
         size_t consumedBytes = 1;
         bool isTokenChar = false;
         // normalize curly apostrophe → ASCII '
-        if ((unsigned char)c == 0xE2 &&
-            i + 2 < text.size() &&
-            (unsigned char)text[i+1] == 0x80 &&
-            ((unsigned char)text[i+2] == 0x99 || (unsigned char)text[i+2] == 0x98)) {
+        if ((unsigned char)c == 0xE2 && i + 2 < text.size() && (unsigned char)text[i+1] == 0x80 &&
+        ((unsigned char)text[i+2] == 0x99 || (unsigned char)text[i+2] == 0x98)) {
             c = '\'';
             consumedBytes = 3;
             isTokenChar = true;
