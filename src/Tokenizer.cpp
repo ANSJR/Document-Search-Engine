@@ -91,3 +91,12 @@ std::vector<std::pair<std::string, WordLocation>> Tokenizer::tokenize(const std:
 
     return tokens;
 }
+std::string Tokenizer::isolateLastToken(const std::string text) const {
+    std::string lastToken;
+    for (auto rit = text.rbegin(); rit != text.rend(); rit++) {
+        if (*rit == ' ') break;
+        lastToken.push_back(*rit);
+    }
+    std::reverse(lastToken.begin(), lastToken.end());
+    return lastToken;
+}

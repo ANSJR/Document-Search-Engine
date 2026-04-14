@@ -21,7 +21,7 @@ class Tokenizer {
 public:
     std::vector<std::string> simpleTokenize(const std::string& text);
     std::size_t getTotalTokens(const std::string& text);
-
+    std::string isolateLastToken(const std::string text) const;
     std::vector<std::pair<std::string, WordLocation>> tokenize(const std::string& text);
 };
 
