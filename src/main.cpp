@@ -27,7 +27,8 @@ int main() {
     std::string query;
     std::cout << "\nEnter Query: ";
     std::getline(std::cin, query);
-    engine.search(query);
+    std::cout << std::endl;
+    const auto& queryResults = engine.search(query);
     std::cout << "EXITING CODE";
     return 0;
 }

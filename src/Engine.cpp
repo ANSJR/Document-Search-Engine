@@ -16,7 +16,7 @@ void Engine::indexFiles(const std::vector<std::string>& files) {
     //         std::cout << "\n";
     //     }
     // }
-    std::cout << "=======================";
+    // std::cout << "=======================";
 }
 std::vector<SearchResult> Engine::search(const std::string& query) const {
     const auto& index = indexer.getIndex();
@@ -25,38 +25,39 @@ std::vector<SearchResult> Engine::search(const std::string& query) const {
     std::vector<SearchResult> finalResults;
     if (results.empty()) std::cout << "EMPTY!!!!!!!!!";
 
-    // Check 1 : A non-prefix/exact search
-    if (results.begin()->first == tokenizer.isolateLastToken(query)) {
-        std::unordered_map<std::string, SearchResult> fileMap;
-        for (const auto& [word, fileMapInner] : results) {
-            for (const auto& [file, locations] : fileMapInner) {
-                // create SearchResult if none exist
-                if (fileMap.find(file) == fileMap.end()) {
-                    fileMap[file] = SearchResult{file, 0.0,{}};
-                }
-                TermMatch termMatch;
-                termMatch.term = word;
-                for (const auto& loc : locations) {
-                    MatchOccurrence occ;
-                    occ.tokenPos = loc.tokenPos;
-                    occ.byteOffset = loc.byteOffset;
-                    occ.length = word.size();
-                    termMatch.occurrences.push_back(occ);
-                }
-                // add term to file
-                fileMap[file].termMatches.push_back(termMatch);
+    //  Check if a prefix search
+    if (results.begin()->first != tokenizer.isolateLastToken(query)) {
+        std::cout << "\nPERFORMING PREFIX SEARCH\n\n";
+    }
+    std::unordered_map<std::string, SearchResult> fileMap;
+    for (const auto& [word, fileMapInner] : results) {
+        for (const auto& [file, locations] : fileMapInner) {
+            // create SearchResult if none exist
+            if (fileMap.find(file) == fileMap.end()) {
+                fileMap[file] = SearchResult{file, 0.0,{}};
             }
+            TermMatch termMatch;
+            termMatch.term = word;
+            for (const auto& loc : locations) {
+                MatchOccurrence occ;
+                occ.tokenPos = loc.tokenPos;
+                occ.byteOffset = loc.byteOffset;
+                occ.length = word.size();
+                termMatch.occurrences.push_back(occ);
+            }
+            // add term to file
+            fileMap[file].termMatches.push_back(termMatch);
         }
-        for (auto& [file, result] : fileMap) {
-            finalResults.push_back(result);
-        }
+    }
+    for (auto& [file, result] : fileMap) {
+        finalResults.push_back(result);
     }
     printSearchResults(finalResults);
     auto scoredResults = searcher.computeScores(results);
     // for (const auto& [doc, score] : scoredResults) {
     //     std::cout << "  " << doc << " (score: " << std::fixed << std::setprecision(2) << score << ")\n";
     // }
-    
+    return finalResults;
 }
 void Engine::printSearchResults(const std::vector<SearchResult>& results) const{
     if (results.empty()) {

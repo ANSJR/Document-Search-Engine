@@ -77,10 +77,10 @@ std::vector<std::string> TernarySearchTree::prefixSearch(const std::string& pref
     prefixHelper(node->mChild, prefix, results);
 
     // Print results for debugging
-    std::cout << "\nDEBUGGING PREFIXS : " << std::endl;
-    for (const auto& res : results) {
-        std::cout << "Prefix match found: " << res << std::endl;
-    }
+    // std::cout << "\nDEBUGGING PREFIXS : " << std::endl;
+    // for (const auto& res : results) {
+    //     std::cout << "Prefix match found: " << res << std::endl;
+    // }
     return results;
 }
 
