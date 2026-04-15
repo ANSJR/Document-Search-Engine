@@ -1,25 +1,9 @@
-
+#include "../include/SearchTypes.h"
 #include "../include/Indexer.h"
 #include "../include/Searcher.h"
 #include "../include/TernarySearchTree.h"
 #include "../include/Tokenizer.h"
 
-struct MatchOccurrence {
-    size_t tokenPos;
-    std::streampos byteOffset;
-    size_t length;
-};
-
-struct TermMatch {
-    std::string term;
-    std::vector<MatchOccurrence> occurrences;
-};
-
-struct SearchResult {
-    std::string file;
-    double score;
-    std::vector<TermMatch> termMatches;
-};
 
 class Engine {
 private:
