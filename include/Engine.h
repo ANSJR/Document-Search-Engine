@@ -1,3 +1,5 @@
+#ifndef ENGINE_H
+#define ENGINE_H
 #include "../include/SearchTypes.h"
 #include "../include/Indexer.h"
 #include "../include/Searcher.h"
@@ -17,3 +19,4 @@ public:
     std::vector<SearchResult> search(const std::string& query) const;
     void printSearchResults(const std::vector<SearchResult>& results) const;
 };
+#endif
