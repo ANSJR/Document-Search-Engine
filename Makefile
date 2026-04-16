@@ -1,5 +1,6 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -g -O0 -Iinclude
+LDFLAGS = -lws2_32 -lmswsock
 
 SRC = $(wildcard src/*.cpp)
 OBJ = $(SRC:.cpp=.o)
@@ -9,7 +10,7 @@ OUT = search_engine
 all: $(OUT)
 
 $(OUT): $(OBJ)
-	$(CXX) $(CXXFLAGS) $(OBJ) -o $(OUT)
+	$(CXX) $(CXXFLAGS) $(OBJ) -o $(OUT) $(LDFLAGS)
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
