@@ -41,6 +41,7 @@ and only reindex the file when it is saved
 ## Known Issues
 - Prefix+prefix are fickel to work (Pattern Unknown)
 - Index build slow for large files (needs parallelism)
+- After a reindexing, now possibly unused words are not removed from tst
 
 
 

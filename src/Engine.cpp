@@ -18,6 +18,9 @@ void Engine::indexFiles(const std::vector<std::string>& files) {
     // }
     // std::cout << "=======================";
 }
+void Engine::indexFile(const std::string& filePath) {
+    indexer.buildIndex(filePath, tst);
+}
 std::vector<SearchResult> Engine::search(const std::string& query) const {
     const auto& index = indexer.getIndex();
     Searcher searcher(index, tst);

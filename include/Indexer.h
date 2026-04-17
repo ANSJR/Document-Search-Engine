@@ -31,9 +31,12 @@ public:
     Indexer();
     void buildIndex(const std::vector<std::string>& files);
     void buildIndex(const std::vector<std::string>& files, TernarySearchTree& tst);
+    void buildIndex(const std::string& filePath, TernarySearchTree& tst);
+    void removeFileFromIndex(const std::string& filePath, TernarySearchTree& tst);
     const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>& getIndex() const;
     std::string readText(const std::string& filePath);
-    int getTotalTerms()const;
+    int getTotalTerms() const;
+    bool filePresent(const std::string& filePath) const;
 };
 
 #endif
