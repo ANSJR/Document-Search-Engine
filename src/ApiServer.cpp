@@ -32,6 +32,14 @@ void ApiServer::run(int port) {
         }
         return crow::response(200, "{\"status\":\"index built\"}");
     });
+    // Skeleton of method that will index a new file or reindex an existing file
+    CROW_ROUTE(app, "/index/file").methods("POST"_method)([this](const crow::request& req) {
+        const char* path = req.url_params.get("path");
+    });
+    // Skeleton of method that will eliminate file and associated terms(that are no longer used) from index
+    CROW_ROUTE(app, "/index/file").methods("DELETE"_method)([this](const crow::request& req) {
+        const char* path = req.url_params.get("path");
+    });
 
     app.port(port).multithreaded().run();
 }
