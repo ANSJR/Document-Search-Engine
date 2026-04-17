@@ -16,7 +16,7 @@ private:
 public:
     Engine();
     void indexFiles(const std::vector<std::string>& files);
-    void Engine::indexFile(const std::string& filePath);
+    void indexFile(const std::string& filePath);
     std::vector<SearchResult> search(const std::string& query) const;
     void printSearchResults(const std::vector<SearchResult>& results) const;
     int getTotalTerms() const;

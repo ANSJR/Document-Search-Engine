@@ -58,15 +58,24 @@ The project now includes a local API server built with Crow.
 
 ### Current endpoints
 GET /health
-- Confirms that the API server is running
+- Confirms that the API server is running.
 GET /search?q=...
-- Runs a search query through the engine
+- Runs a search query through the engine.
 GET /indexHealth
-- Returns basic index term information
-POST /initalIndex?path=...
-- Builds the initial index from a specified directory of files
+- Returns basic index term information.
+POST /initialIndex?path=...
+- Builds the initial index from a specified directory of files.
+POST /index/file?path=...
+- Indexes a new file or reindex an existing file while performing DELETE actions on data that not in use by other files.
+DELETE /index/file?path=...
+- Eliminates file and associated terms(that are no longer used) from index.
+
 
 ### Example
-```bash
 curl http://localhost:2323/health
-curl "http://localhost:2323/search?q=apple"
+curl -X POST "http://localhost:2323/initalIndex?path=data"
+curl http://localhost:2323/indexHealth
+curl "http://localhost:2323/search?q=birthday"
+curl -X POST "http://localhost:2323/index/file?path=dataTemp/BBcase.txt"
+curl http://localhost:2323/indexHealth
+curl "http://localhost:2323/search?q=birthday"

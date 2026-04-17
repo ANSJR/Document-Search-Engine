@@ -18,7 +18,8 @@ public:
 
 private:
     std::string buildHealthResponse() const;
-    bool buildInitalIndex(const std::string& path);
+    bool buildInitialIndex(const std::string& path);
+    bool addFileToIndex(const std::string& filePath);
     std::string buildSearchResponse(const std::string& query) const;
     std::string buildIndexHealthResponse() const;
     std::string escapeJson(const std::string& text) const;

@@ -21,12 +21,12 @@ void ApiServer::run(int port) {
         }
         return crow::response(200, buildSearchResponse(q));
     });
-    CROW_ROUTE(app, "/initalIndex").methods("POST"_method)([this](const crow::request& req) {
+    CROW_ROUTE(app, "/initialIndex").methods("POST"_method)([this](const crow::request& req) {
         const char* path = req.url_params.get("path");
         if (!path) {
             return crow::response(400, "{\"error\":\"missing query parameter 'path'\"}");
         }
-        bool ok = buildInitalIndex(path);
+        bool ok = buildInitialIndex(path);
         if (!ok) {
             return crow::response(400, "{\"status\":\"failed to build index\"}");
         }
@@ -35,11 +35,19 @@ void ApiServer::run(int port) {
     // Skeleton of method that will index a new file or reindex an existing file
     CROW_ROUTE(app, "/index/file").methods("POST"_method)([this](const crow::request& req) {
         const char* path = req.url_params.get("path");
+        if (!path) {
+            return crow::response(400, "{\"error\":\"missing query parameter 'path'\"}");
+        }
+        bool ok = addFileToIndex(path);
+        if (!ok) {
+            return crow::response(400, "{\"status\":\"failed add file to index\"}");
+        }
+        return crow::response(200, "{\"status\":\"file added/reindexed\"}");
     });
     // Skeleton of method that will eliminate file and associated terms(that are no longer used) from index
-    CROW_ROUTE(app, "/index/file").methods("DELETE"_method)([this](const crow::request& req) {
-        const char* path = req.url_params.get("path");
-    });
+    // CROW_ROUTE(app, "/index/file").methods("DELETE"_method)([this](const crow::request& req) {
+    //     const char* path = req.url_params.get("path");
+    // });
 
     app.port(port).multithreaded().run();
 }
@@ -48,7 +56,7 @@ std::string ApiServer::buildHealthResponse() const {
     std::string state = "Running";
     return "Server is currently : " + state;
 }
-bool ApiServer::buildInitalIndex(const std::string& path) {
+bool ApiServer::buildInitialIndex(const std::string& path) {
     std::vector<std::string> files;
     for (const auto& entry : std::filesystem::directory_iterator(path)) {
         if (entry.is_regular_file() && (entry.path().extension() == ".txt" || entry.path().extension() == ".md")) {
@@ -60,6 +68,20 @@ bool ApiServer::buildInitalIndex(const std::string& path) {
     }
 
     engine.indexFiles(files);
+    return true;
+}
+bool ApiServer::addFileToIndex(const std::string& filePath) {
+    std::filesystem::path path(filePath);
+
+    if (!std::filesystem::exists(path) || !std::filesystem::is_regular_file(path)) {
+        return false;
+    }
+    std::string ext = path.extension().string();
+    if (ext != ".txt" && ext != ".md") {
+        return false;
+    }
+
+    engine.indexFile(filePath);
     return true;
 }
 std::string ApiServer::buildSearchResponse(const std::string& query) const {
