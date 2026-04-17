@@ -63,3 +63,6 @@ std::string Indexer::readText(const std::string& filePath) {
     buffer << file.rdbuf(); // reads data from source buffer and writes to internally stored string
     return buffer.str(); // buffer.str returns finalized internally stored string
 }
+int Indexer::getTotalTerms() const{
+    return index.size();
+}

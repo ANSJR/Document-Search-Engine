@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "Engine.h"
+#include "SearchTypes.h"
 #include "crow.h"
 
 class ApiServer {
@@ -17,9 +18,10 @@ public:
 
 private:
     std::string buildHealthResponse() const;
+    bool buildInitalIndex(const std::string& path);
     std::string buildSearchResponse(const std::string& query) const;
-    std::string buildIndexResponse() const;
-    
+    std::string buildIndexHealthResponse() const;
+    std::string escapeJson(const std::string& text) const;
 };
 
 #endif

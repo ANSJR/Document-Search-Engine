@@ -57,11 +57,14 @@ This is meant to support future features like:
 The project now includes a local API server built with Crow.
 
 ### Current endpoints
-- `GET /health`  
-  Returns server status
-
-- `GET /search?q=...`  
-  Runs a search query through the engine
+GET /health
+- Confirms that the API server is running
+GET /search?q=...
+- Runs a search query through the engine
+GET /indexHealth
+- Returns basic index term information
+POST /initalIndex?path=...
+- Builds the initial index from a specified directory of files
 
 ### Example
 ```bash

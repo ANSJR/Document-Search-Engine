@@ -18,5 +18,6 @@ public:
     void indexFiles(const std::vector<std::string>& files);
     std::vector<SearchResult> search(const std::string& query) const;
     void printSearchResults(const std::vector<SearchResult>& results) const;
+    int getTotalTerms() const;
 };
 #endif

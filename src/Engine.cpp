@@ -80,3 +80,6 @@ void Engine::printSearchResults(const std::vector<SearchResult>& results) const{
         std::cout << "-------------------------\n";
     }
 }
+int Engine::getTotalTerms() const{
+    return indexer.getTotalTerms();
+}

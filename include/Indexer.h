@@ -33,6 +33,7 @@ public:
     void buildIndex(const std::vector<std::string>& files, TernarySearchTree& tst);
     const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>& getIndex() const;
     std::string readText(const std::string& filePath);
+    int getTotalTerms()const;
 };
 
 #endif
