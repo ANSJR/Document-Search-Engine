@@ -19,14 +19,11 @@ This project is currently in active development.
 - Project currently builds and runs locally from the command line
 
 ### In progress
-- Returning fully structured JSON search results through the API
-- Improving result formatting for integration into future apps
+- Improving result formatting of JSON search results for integration into future apps
 - Cleaning up architecture between engine, search, indexing, and API layers
 
 ### Planned
-- File reindex/update for API use
 - Snippet/context extraction via byte offsets
-- Single-file incremental reindexing
 - Multithreaded parallel index construction
 - Integration into a future application
 
