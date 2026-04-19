@@ -45,9 +45,17 @@ void ApiServer::run(int port) {
         return crow::response(200, "{\"status\":\"file added/reindexed\"}");
     });
     // Skeleton of method that will eliminate file and associated terms(that are no longer used) from index
-    // CROW_ROUTE(app, "/index/file").methods("DELETE"_method)([this](const crow::request& req) {
-    //     const char* path = req.url_params.get("path");
-    // });
+    CROW_ROUTE(app, "/index/file").methods("DELETE"_method)([this](const crow::request& req) {
+        const char* path = req.url_params.get("path");
+        if (!path) {
+            return crow::response(400, "{\"error\":\"missing query parameter 'path'\"}");
+        }
+        bool ok = deleteFileFromIndex(path);
+        if (!ok) {
+            return crow::response(400, "{\"status\":\"failed delete file from index\"}");
+        }
+        return crow::response(200, "{\"status\":\"file deleted\"}");
+    });
 
     app.port(port).multithreaded().run();
 }
@@ -82,6 +90,20 @@ bool ApiServer::addFileToIndex(const std::string& filePath) {
     }
 
     engine.indexFile(filePath);
+    return true;
+}
+bool ApiServer::deleteFileFromIndex(const std::string& filePath) {
+    std::filesystem::path path(filePath);
+
+    if (!std::filesystem::exists(path) || !std::filesystem::is_regular_file(path)) {
+        return false;
+    }
+    std::string ext = path.extension().string();
+    if (ext != ".txt" && ext != ".md") {
+        return false;
+    }
+
+    engine.deleteTermFromFile(filePath);
     return true;
 }
 std::string ApiServer::buildSearchResponse(const std::string& query) const {
@@ -130,7 +152,7 @@ std::string ApiServer::buildSearchResponse(const std::string& query) const {
 }
 
 std::string ApiServer::buildIndexHealthResponse() const {
-    return "Index is currently at : " + std::to_string(engine.getTotalTerms()) + " terms.";
+    return "Index is currently at " + std::to_string(engine.getTotalIndexTerms()) + " terms and TST is at " + std::to_string(engine.getTotalTreeTerms());
 }
 
 std::string ApiServer::escapeJson(const std::string& text) const {

@@ -80,7 +80,7 @@ void Indexer::removeFileFromIndex(const std::string& filePath, TernarySearchTree
         index[term].erase(filePath);
         if (index[term].empty()) {
             index.erase(term);
-            // tst.remove(term);
+            tst.deleteTerm(term);
         }
     }
     fileToTerms.erase(filePath);
@@ -95,7 +95,7 @@ std::string Indexer::readText(const std::string& filePath) {
     buffer << file.rdbuf(); // reads data from source buffer and writes to internally stored string
     return buffer.str(); // buffer.str returns finalized internally stored string
 }
-int Indexer::getTotalTerms() const {
+int Indexer::getTotalIndexTerms() const {
     return index.size();
 }
 bool Indexer::filePresent(const std::string& filePath) const {

@@ -84,8 +84,7 @@ std::vector<std::string> TernarySearchTree::prefixSearch(const std::string& pref
     return results;
 }
 
-void TernarySearchTree::traverseTST(TreeNode* root, char* buffer, int depth)
-{
+void TernarySearchTree::traverseTST(TreeNode* root, char* buffer, int depth) {
     if (root) {
         traverseTST(root->lChild, buffer, depth);
         buffer[depth] = root->data;
@@ -97,8 +96,43 @@ void TernarySearchTree::traverseTST(TreeNode* root, char* buffer, int depth)
         traverseTST(root->rChild, buffer, depth);
     }
 }
-void TernarySearchTree::printTST()
-{
+int TernarySearchTree::traverseTSTCount(TreeNode* root) const {
+    if (root) {
+        int count = 0;
+        count += traverseTSTCount(root->lChild);
+        if (root->marked) count++;
+        count += traverseTSTCount(root->mChild);
+        count += traverseTSTCount(root->rChild);
+        return count;
+    }
+    return 0;
+}
+int TernarySearchTree::countWords() const {
+    return traverseTSTCount(root);
+}
+bool TernarySearchTree::hasChildren(TreeNode* node) const {
+    return node && (node->lChild || node->mChild || node->rChild);
+}
+void TernarySearchTree::deleteTerm(const std::string& key) {
+    if (key.empty() || !root) return;
+    root = deleteHelper(root, key, 0);
+}
+TreeNode* TernarySearchTree::deleteHelper(TreeNode* curr, const std::string& key, size_t keyIndex) {
+    if (curr == nullptr) return nullptr;
+    char c = key[keyIndex];
+    if (c < curr->data) curr->lChild = deleteHelper(curr->lChild, key, keyIndex);
+    else if (c > curr->data) curr->rChild = deleteHelper(curr->rChild, key, keyIndex);
+    else {
+        if (keyIndex + 1 < key.size()) curr->mChild = deleteHelper(curr->mChild, key, keyIndex + 1);
+        else if (curr->marked) curr->marked = false;
+    }
+    if (!curr->marked && !hasChildren(curr)) {
+        delete curr;
+        return nullptr;
+    }
+    return curr;
+}
+void TernarySearchTree::printTST() {
     int MAX = 200;
     char buffer[MAX];
     traverseTST(root, buffer, 0);

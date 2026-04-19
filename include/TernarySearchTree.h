@@ -25,6 +25,9 @@ private:
 
     void traverseTST(TreeNode* root, char* buffer, int depth);
     TreeNode* insertHelper(TreeNode* curr, const std::string& key, size_t keyIndex);
+    bool hasChildren(TreeNode* node) const;
+    TreeNode* deleteHelper(TreeNode* curr, const std::string& key, size_t keyIndex);
+    int traverseTSTCount(TreeNode* root) const;
 public:
     TernarySearchTree();
     ~TernarySearchTree();
@@ -32,6 +35,8 @@ public:
     void insert(const std::string& key);
     void prefixHelper(TreeNode* node, std::string current, std::vector<std::string>& results) const;
     std::vector<std::string> prefixSearch(const std::string& prefix) const;
+    int countWords() const;
+    void deleteTerm(const std::string& key);
     void printTST();
 };
 

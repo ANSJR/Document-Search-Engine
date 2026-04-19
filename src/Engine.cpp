@@ -21,6 +21,9 @@ void Engine::indexFiles(const std::vector<std::string>& files) {
 void Engine::indexFile(const std::string& filePath) {
     indexer.buildIndex(filePath, tst);
 }
+void Engine::deleteTermFromFile(const std::string& filePath) {
+    indexer.removeFileFromIndex(filePath, tst);
+}
 std::vector<SearchResult> Engine::search(const std::string& query) const {
     const auto& index = indexer.getIndex();
     Searcher searcher(index, tst);
@@ -83,6 +86,9 @@ void Engine::printSearchResults(const std::vector<SearchResult>& results) const{
         std::cout << "-------------------------\n";
     }
 }
-int Engine::getTotalTerms() const{
-    return indexer.getTotalTerms();
+int Engine::getTotalIndexTerms() const {
+    return indexer.getTotalIndexTerms();
+}
+int Engine::getTotalTreeTerms() const {
+    return tst.countWords();
 }

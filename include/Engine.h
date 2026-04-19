@@ -17,8 +17,10 @@ public:
     Engine();
     void indexFiles(const std::vector<std::string>& files);
     void indexFile(const std::string& filePath);
+    void deleteTermFromFile(const std::string& filePath);
     std::vector<SearchResult> search(const std::string& query) const;
     void printSearchResults(const std::vector<SearchResult>& results) const;
-    int getTotalTerms() const;
+    int getTotalIndexTerms() const;
+    int getTotalTreeTerms() const;
 };
 #endif

@@ -73,9 +73,11 @@ DELETE /index/file?path=...
 
 ### Example
 curl http://localhost:2323/health
-curl -X POST "http://localhost:2323/initalIndex?path=data"
+curl -X POST "http://localhost:2323/initialIndex?path=data"
 curl http://localhost:2323/indexHealth
 curl "http://localhost:2323/search?q=birthday"
 curl -X POST "http://localhost:2323/index/file?path=dataTemp/BBcase.txt"
 curl http://localhost:2323/indexHealth
 curl "http://localhost:2323/search?q=birthday"
+curl -X DELETE "http://localhost:2323/index/file?path=dataTemp/BBcase.txt"
+curl http://localhost:2323/indexHealth

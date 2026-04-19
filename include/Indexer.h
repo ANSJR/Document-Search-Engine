@@ -35,7 +35,7 @@ public:
     void removeFileFromIndex(const std::string& filePath, TernarySearchTree& tst);
     const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>& getIndex() const;
     std::string readText(const std::string& filePath);
-    int getTotalTerms() const;
+    int getTotalIndexTerms() const;
     bool filePresent(const std::string& filePath) const;
 };
 
