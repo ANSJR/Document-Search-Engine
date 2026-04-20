@@ -11,7 +11,7 @@
 Indexer::Indexer() {}
 
 void Indexer::buildIndex(const std::vector<std::string>& files) {
-    long long int totalTokensFiled = 0;
+    // long long int totalTokensFiled = 0;
 
     for (const auto& filepath : files) {
         std::string textString = readText(filepath);
@@ -20,14 +20,14 @@ void Indexer::buildIndex(const std::vector<std::string>& files) {
         for (const auto& [token, loc] : tokens) {
             index[token][filepath].push_back(loc);
         }
-        totalTokensFiled += static_cast<long long>(tokens.size());
+        // totalTokensFiled += static_cast<long long>(tokens.size());
     }
     // std::cout << "Total files " << files.size() << ", tokens filed "
     //           << totalTokensFiled << " :" << std::endl;
 }
 
 void Indexer::buildIndex(const std::vector<std::string>& files, TernarySearchTree& tst) {
-    long long int totalTokensFiled = 0;
+    // long long int totalTokensFiled = 0;
     for (const auto& filePath : files) {
         // Safety Check
         if(filePresent(filePath)) removeFileFromIndex(filePath, tst);
@@ -40,7 +40,7 @@ void Indexer::buildIndex(const std::vector<std::string>& files, TernarySearchTre
             index[token][filePath].push_back(loc);
             tst.insert(token);
         }
-        totalTokensFiled += static_cast<long long>(tokens.size());
+        // totalTokensFiled += static_cast<long long>(tokens.size());
     }
     // fileToTerms DEBUG
     // for (const auto& [file, terms] : fileToTerms) {
@@ -59,7 +59,7 @@ void Indexer::buildIndex(const std::string& filePath, TernarySearchTree& tst) {
         removeFileFromIndex(filePath, tst);
     }
 
-    long long int totalTokensFiled = 0;
+    // long long int totalTokensFiled = 0;
     std::string textString = readText(filePath);
     Tokenizer tokenizer;
     auto tokens = tokenizer.tokenize(textString);
@@ -68,7 +68,7 @@ void Indexer::buildIndex(const std::string& filePath, TernarySearchTree& tst) {
         index[token][filePath].push_back(loc);
         tst.insert(token);
     }
-    totalTokensFiled += static_cast<long long>(tokens.size());
+    // totalTokensFiled += static_cast<long long>(tokens.size());
 }
 void Indexer::removeFileFromIndex(const std::string& filePath, TernarySearchTree& tst) {
     // Safety Check

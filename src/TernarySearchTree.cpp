@@ -133,7 +133,7 @@ TreeNode* TernarySearchTree::deleteHelper(TreeNode* curr, const std::string& key
     return curr;
 }
 void TernarySearchTree::printTST() {
-    int MAX = 200;
+    const int MAX = 200;
     char buffer[MAX];
     traverseTST(root, buffer, 0);
 }

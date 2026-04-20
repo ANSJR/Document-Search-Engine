@@ -1,6 +1,14 @@
 CXX = g++
+
 CXXFLAGS = -std=c++17 -Wall -Wextra -g -O0 -Iinclude
-LDFLAGS = -lws2_32 -lmswsock
+
+# Default (Unix/macOS)
+LDFLAGS =
+
+# Detect Windows
+ifeq ($(OS),Windows_NT)
+    LDFLAGS += -lws2_32 -lmswsock
+endif
 
 SRC = $(wildcard src/*.cpp)
 OBJ = $(SRC:.cpp=.o)
