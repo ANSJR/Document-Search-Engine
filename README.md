@@ -25,7 +25,7 @@ http://localhost:2323
 - Indexes local `.txt` and `.md` files from a directory
 - Tokenizes and normalizes text for efficient search
 - Builds an inverted index with positional metadata
-- Supports ranked retrieval using TF-IDF-style scoring
+- Supports ranked retrieval using BM25 ranking model
 - Prefix-based lookup via a Ternary Search Tree (TST)
 - Incremental file indexing and deletion
 - Local HTTP API powered by Crow
@@ -64,7 +64,7 @@ The engine stores positional information for matched terms, including:
 - Crow HTTP framework
 - Inverted index
 - Ternary Search Tree (TST)
-- TF-IDF-style ranking
+- BM25 style ranking
 
 ---
 
@@ -111,29 +111,142 @@ curl -X DELETE "http://localhost:2323/index/file?path=dataTemp/BBcase.txt"
 curl http://localhost:2323/indexHealth
 ```
 {
-  "query": "birthday",
-  "count": 1,
+  "query": "warr",
+  "count": 2,
   "results": [
     {
       "file": "data/WarAndPeace.txt",
-      "score": 0,
+      "score": 0.321661,
+      "termCount": 6,
       "termMatches": [
         {
-          "term": "birthday",
+          "term": "warriors",
           "occurrences": [
             {
-              "tokenPos": 443617,
-              "byteOffset": 2522350,
+              "tokenPos": 313176,
+              "byteOffset": 1779894,
               "length": 8
             },
             {
-              "tokenPos": 443651,
-              "byteOffset": 2522568,
+              "tokenPos": 313923,
+              "byteOffset": 1784045,
               "length": 8
             },
             {
-              "tokenPos": 443854,
-              "byteOffset": 2523748,
+              "tokenPos": 408580,
+              "byteOffset": 2322679,
+              "length": 8
+            },
+            {
+              "tokenPos": 485112,
+              "byteOffset": 2757875,
+              "length": 8
+            }
+          ]
+        },
+        {
+          "term": "warrior",
+          "occurrences": [
+            {
+              "tokenPos": 44214,
+              "byteOffset": 254050,
+              "length": 7
+            },
+            {
+              "tokenPos": 108457,
+              "byteOffset": 622232,
+              "length": 7
+            },
+            {
+              "tokenPos": 317231,
+              "byteOffset": 1802457,
+              "length": 7
+            },
+            {
+              "tokenPos": 317836,
+              "byteOffset": 1805963,
+              "length": 7
+            },
+            {
+              "tokenPos": 329723,
+              "byteOffset": 1873862,
+              "length": 7
+            },
+            {
+              "tokenPos": 401915,
+              "byteOffset": 2285158,
+              "length": 7
+            }
+          ]
+        },
+        {
+          "term": "warranty",
+          "occurrences": [
+            {
+              "tokenPos": 577606,
+              "byteOffset": 3286073,
+              "length": 8
+            },
+            {
+              "tokenPos": 577677,
+              "byteOffset": 3286548,
+              "length": 8
+            }
+          ]
+        },
+        {
+          "term": "warranties",
+          "occurrences": [
+            {
+              "tokenPos": 577905,
+              "byteOffset": 3287825,
+              "length": 10
+            },
+            {
+              "tokenPos": 577917,
+              "byteOffset": 3287898,
+              "length": 10
+            },
+            {
+              "tokenPos": 577937,
+              "byteOffset": 3288020,
+              "length": 10
+            }
+          ]
+        },
+        {
+          "term": "warrants",
+          "occurrences": [
+            {
+              "tokenPos": 446331,
+              "byteOffset": 2538063,
+              "length": 8
+            }
+          ]
+        },
+        {
+          "term": "warrant",
+          "occurrences": [
+            {
+              "tokenPos": 26462,
+              "byteOffset": 153559,
+              "length": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "dataTemp/BBcase.txt",
+      "score": 0.155205,
+      "termCount": 1,
+      "termMatches": [
+        {
+          "term": "warriors",
+          "occurrences": [
+            {
+              "tokenPos": 44501,
+              "byteOffset": 253483,
               "length": 8
             }
           ]

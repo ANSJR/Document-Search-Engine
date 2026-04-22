@@ -28,7 +28,7 @@ std::vector<SearchResult> Engine::search(const std::string& query) const {
     Searcher searcher(index, tst);
     auto results = searcher.search(query);
     std::vector<SearchResult> finalResults;
-    if (results.empty()) std::cout << "EMPTY!!!!!!!!!";
+    if (results.empty()) std::cout << "EMPTY RESULT";
 
     // if (results.begin()->first != tokenizer.isolateLastToken(query)) {
     //     std::cout << "\nPERFORMING PREFIX SEARCH\n\n";
@@ -38,7 +38,7 @@ std::vector<SearchResult> Engine::search(const std::string& query) const {
         for (const auto& [file, locations] : fileMapInner) {
             // create SearchResult if none exist
             if (fileMap.find(file) == fileMap.end()) {
-                fileMap[file] = SearchResult{file, indexer.computeScore(file,word),{}};
+                fileMap[file] = SearchResult{file, 0.0,{}};
             }
             TermMatch termMatch;
             termMatch.term = word;
@@ -51,11 +51,18 @@ std::vector<SearchResult> Engine::search(const std::string& query) const {
             }
             // add term to file
             fileMap[file].termMatches.push_back(termMatch);
+            fileMap[file].score += indexer.computeScore(file, word);
         }
     }
-    for (auto& [file, result] : fileMap) {
+    finalResults.reserve(fileMap.size());
+    for (const auto& [file, result] : fileMap) {
         finalResults.push_back(result);
     }
+
+    std::sort(finalResults.begin(), finalResults.end(),
+        [](const SearchResult& a, const SearchResult& b) {
+            return a.score > b.score;
+        });
     // printSearchResults(finalResults);
     return finalResults;
 }

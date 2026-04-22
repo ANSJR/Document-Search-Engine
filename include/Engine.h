@@ -11,7 +11,7 @@ class Engine {
 private:
     TernarySearchTree tst;
     Indexer indexer;
-    Tokenizer tokenizer;
+    // Tokenizer tokenizer;
 
 public:
     Engine();

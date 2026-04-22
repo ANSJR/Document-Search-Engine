@@ -118,6 +118,7 @@ std::string ApiServer::buildSearchResponse(const std::string& query) const {
         out << "{";
         out << "\"file\":\"" << escapeJson(result.file) << "\",";
         out << "\"score\":" << result.score << ",";
+        out << "\"termCount\":" << result.termMatches.size() << ",";
         out << "\"termMatches\":[";
 
         for (size_t j = 0; j < result.termMatches.size(); ++j) {
