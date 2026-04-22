@@ -7,6 +7,7 @@
  */
 
 #include "../include/Indexer.h"
+#include <cmath>
 
 Indexer::Indexer() {}
 
@@ -35,15 +36,16 @@ void Indexer::buildIndex(const std::vector<std::string>& files, TernarySearchTre
         std::string textString = readText(filePath);
         Tokenizer tokenizer;
         auto tokens = tokenizer.tokenize(textString);
+        fileToTerms[filePath].first = tokens.size();
         for (const auto& [token, loc] : tokens) {
-            fileToTerms[filePath].insert(token);
+            fileToTerms[filePath].second.insert(token);
             index[token][filePath].push_back(loc);
             tst.insert(token);
         }
         // totalTokensFiled += static_cast<long long>(tokens.size());
     }
     // fileToTerms DEBUG
-    // for (const auto& [file, terms] : fileToTerms) {
+    // for (const auto& [file, terms] : fileToTerms.second) {
     //     std::cout << "File: " << file
     //             << " | unique terms: " << terms.size() << "\n";
     //     for (const auto& word : terms) {
@@ -63,8 +65,9 @@ void Indexer::buildIndex(const std::string& filePath, TernarySearchTree& tst) {
     std::string textString = readText(filePath);
     Tokenizer tokenizer;
     auto tokens = tokenizer.tokenize(textString);
+    fileToTerms[filePath].first = tokens.size();
     for (const auto& [token, loc] : tokens) {
-        fileToTerms[filePath].insert(token);
+        fileToTerms[filePath].second.insert(token);
         index[token][filePath].push_back(loc);
         tst.insert(token);
     }
@@ -75,8 +78,9 @@ void Indexer::removeFileFromIndex(const std::string& filePath, TernarySearchTree
     if(!filePresent(filePath)) {
         return;
     }
+
     std::cout << "PERFORMING FILE REMOVAL FROM INDEX\n";
-    for (const auto& term : fileToTerms[filePath]) {
+    for (const auto& term : fileToTerms[filePath].second) {
         index[term].erase(filePath);
         if (index[term].empty()) {
             index.erase(term);
@@ -88,7 +92,6 @@ void Indexer::removeFileFromIndex(const std::string& filePath, TernarySearchTree
 const std::unordered_map<std::string,std::unordered_map<std::string, std::vector<WordLocation>>>& Indexer::getIndex() const {
     return index;
 }
-
 std::string Indexer::readText(const std::string& filePath) {
     std::ifstream file(filePath);
     std::ostringstream buffer; // in-memory stream, dynamically sized std::string that is stored internally
@@ -100,4 +103,30 @@ int Indexer::getTotalIndexTerms() const {
 }
 bool Indexer::filePresent(const std::string& filePath) const {
     return fileToTerms.find(filePath) != fileToTerms.end();
+}
+double Indexer::computeScore(const std::string& file, const std::string& term) const {
+    double N = fileToTerms.size(); // Total docs
+    double df = index.at(term).size(); // Docs containing term
+    double tf = index.at(term).at(file).size(); // Times term appears in this doc
+    double docLen = fileToTerms.at(file).first; // Current doc token count
+    double curAvgDocLen = getTotalIndexTerms() / static_cast<double>(fileToTerms.size()); // Average token count across docs
+    double k1 = 1.5; // TF tuning constant : Controls how much extra benefit repeated term matches give. So higher k1 = repeated occurrences matter more
+    double b = 0.75; // Doc-length normalization constant : Controls how much document length penalizes/normalizes the score. b = 0.0 (ignore doc length) and b = 1.0 (full length normalization)
+
+    double idf = std::log((N - df + 0.5) / (df + 0.5) + 1.0);
+    double numerator = tf * (k1 + 1.0);
+    double denominator = tf + k1 * (1.0 - b + b * (docLen / curAvgDocLen));
+
+    double score = idf * (numerator / denominator);
+    // std::cout << "\nfile: " << file
+    //       << "\nterm: " << term
+    //       << "\nN: " << N
+    //       << "\ndf: " << df
+    //       << "\ntf: " << tf
+    //       << "\ndocLen: " << docLen
+    //       << "\navgDocLen: " << curAvgDocLen
+    //       << "\nidf: " << idf
+    //       << "\nscore: " << score << "\n";
+
+    return score;
 }

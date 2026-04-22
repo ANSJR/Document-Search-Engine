@@ -36,7 +36,6 @@ TreeNode* TernarySearchTree::insertHelper(TreeNode* curr, const std::string& key
     }
     return curr;
 }
-
 void TernarySearchTree::prefixHelper(TreeNode* node, std::string current, std::vector<std::string>& results) const {
     if (!node) return;
 
@@ -48,8 +47,6 @@ void TernarySearchTree::prefixHelper(TreeNode* node, std::string current, std::v
     prefixHelper(node->mChild, nextCurrent, results);
     prefixHelper(node->rChild, current, results);
 }
-
-
 std::vector<std::string> TernarySearchTree::prefixSearch(const std::string& prefix) const {
     std::vector<std::string> results;
     if (!root || prefix.empty()) return results;
@@ -68,14 +65,11 @@ std::vector<std::string> TernarySearchTree::prefixSearch(const std::string& pref
             node = node->mChild;
         }
     }
-
     if (!node) return results;
-
     if (node->marked)   // If the final prefix node is a complete word, add it
         results.push_back(prefix);
 
     prefixHelper(node->mChild, prefix, results);
-
     // Print results for debugging
     // std::cout << "\nDEBUGGING PREFIXS : " << std::endl;
     // for (const auto& res : results) {

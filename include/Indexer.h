@@ -25,7 +25,8 @@
 
 class Indexer {
 private:
-    std::unordered_map<std::string, std::unordered_set<std::string>> fileToTerms;
+
+    std::unordered_map<std::string, std::pair<size_t,std::unordered_set<std::string>>> fileToTerms;
     std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>> index;
 public:
     Indexer();
@@ -37,6 +38,7 @@ public:
     std::string readText(const std::string& filePath);
     int getTotalIndexTerms() const;
     bool filePresent(const std::string& filePath) const;
+    double computeScore(const std::string& term, const std::string& file) const;
 };
 
 #endif

@@ -55,7 +55,6 @@ public:
     // default constructor
     Searcher(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>& idx,
              const TernarySearchTree& tst);
-    std::vector<std::pair<std::string, double>> computeScores(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>& results) const;
     std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>> search(const std::string& query);
 };
 

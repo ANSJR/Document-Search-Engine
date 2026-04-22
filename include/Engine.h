@@ -19,7 +19,6 @@ public:
     void indexFile(const std::string& filePath);
     void deleteTermFromFile(const std::string& filePath);
     std::vector<SearchResult> search(const std::string& query) const;
-    void printSearchResults(const std::vector<SearchResult>& results) const;
     int getTotalIndexTerms() const;
     int getTotalTreeTerms() const;
 };

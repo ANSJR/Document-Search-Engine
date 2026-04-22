@@ -47,30 +47,24 @@ Searcher::chainedPositionalIntersect(const std::unordered_map<std::string, std::
 ) {
     using DocPosMap = std::unordered_map<std::string, std::vector<WordLocation>>;
     std::unordered_map<std::string, DocPosMap> finalResults;
-
     if (queryTokens.empty()) return finalResults;
-
     std::vector<std::string> firstMatches;
     const std::string& firstToken = queryTokens[0];
-
     if (index.count(firstToken)) {
         firstMatches.push_back(firstToken);
     } else {
         firstMatches = tst.prefixSearch(firstToken);
         if (firstMatches.empty()) return finalResults;
     }
-
     if (queryTokens.size() == 1) {
         for (const auto& word : firstMatches) {
             finalResults[word] = index.at(word);
         }
         return finalResults;
     }
-
     DocPosMap currentToken;
     std::string currentWord;
     bool firstWordSet = false;
-
     for (const auto& word : firstMatches) {
         auto it = index.find(word);
         if (it != index.end()) {
@@ -81,27 +75,21 @@ Searcher::chainedPositionalIntersect(const std::unordered_map<std::string, std::
         }
     }
     if (!firstWordSet) return finalResults;
-
     for (size_t i = 1; i < queryTokens.size(); ++i) {
         const std::string& token = queryTokens[i];
         std::vector<std::string> targetWords;
-
         if (index.count(token)) {
             targetWords.push_back(token);
         } else {
             targetWords = tst.prefixSearch(token);
             if (targetWords.empty()) return finalResults;
         }
-
         std::unordered_map<std::string, DocPosMap> nextResults;
-
         for (const auto& nextWord : targetWords) {
             auto nextIt = index.find(nextWord);
             if (nextIt == index.end()) continue;
-
             const DocPosMap& nextMap = nextIt->second;
             DocPosMap resultingFileAndPositions;
-
             for (const auto& [file, pos1] : currentToken) {
                 auto found = nextMap.find(file);
                 if (found != nextMap.end()) {
@@ -111,7 +99,6 @@ Searcher::chainedPositionalIntersect(const std::unordered_map<std::string, std::
                     }
                 }
             }
-
             if (!resultingFileAndPositions.empty()) {
                 nextResults[nextWord] = resultingFileAndPositions;
             }
@@ -125,39 +112,9 @@ Searcher::chainedPositionalIntersect(const std::unordered_map<std::string, std::
             break;
         }
     }
-
     if (finalResults.empty()) {
         return {{currentWord, currentToken}};
     }
     return finalResults;
 }
-
-double Searcher::computeTF(size_t termCountInDoc, size_t totalTermsInDoc) const {
-    return (static_cast<double>(termCountInDoc) / totalTermsInDoc);
-}
-
-double Searcher::computeIDF(size_t docsContainingTerm, size_t totalDocs) const {
-    return (log((static_cast<double>(totalDocs)) / (1.0 + docsContainingTerm)));
-}
-
-
-std::vector<std::pair<std::string, double>> Searcher::computeScores(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>& results) const {
-    std::vector<std::pair<std::string, double>> rankedDocs; // (doc, score)
-    size_t totalDocs = index.size();
-
-    for (const auto& [word, docMap] : results) {
-        size_t docsContaining = docMap.size();
-        double idf = std::log((double)totalDocs / (1.0 + docsContaining));
-
-        for (const auto& [doc, positions] : docMap) {
-            double tf = static_cast<double>(positions.size());
-            double score = tf * idf; // basic TF-IDF
-            rankedDocs.emplace_back(doc, score);
-        }
-    }
-
-    std::sort(rankedDocs.begin(), rankedDocs.end(),[](const auto& a, const auto& b) {return a.second > b.second;});
-    return rankedDocs;
-}
-
 

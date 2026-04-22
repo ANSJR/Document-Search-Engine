@@ -32,7 +32,6 @@ void ApiServer::run(int port) {
         }
         return crow::response(200, "{\"status\":\"index built\"}");
     });
-    // Skeleton of method that will index a new file or reindex an existing file
     CROW_ROUTE(app, "/index/file").methods("POST"_method)([this](const crow::request& req) {
         const char* path = req.url_params.get("path");
         if (!path) {
@@ -44,7 +43,6 @@ void ApiServer::run(int port) {
         }
         return crow::response(200, "{\"status\":\"file added/reindexed\"}");
     });
-    // Skeleton of method that will eliminate file and associated terms(that are no longer used) from index
     CROW_ROUTE(app, "/index/file").methods("DELETE"_method)([this](const crow::request& req) {
         const char* path = req.url_params.get("path");
         if (!path) {
@@ -150,11 +148,9 @@ std::string ApiServer::buildSearchResponse(const std::string& query) const {
     out << "}";
     return out.str();
 }
-
 std::string ApiServer::buildIndexHealthResponse() const {
     return "Index is currently at " + std::to_string(engine.getTotalIndexTerms()) + " terms and TST is at " + std::to_string(engine.getTotalTreeTerms());
 }
-
 std::string ApiServer::escapeJson(const std::string& text) const {
     std::ostringstream out;
     for (char c : text) {

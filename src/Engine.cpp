@@ -16,7 +16,6 @@ void Engine::indexFiles(const std::vector<std::string>& files) {
     //         std::cout << "\n";
     //     }
     // }
-    // std::cout << "=======================";
 }
 void Engine::indexFile(const std::string& filePath) {
     indexer.buildIndex(filePath, tst);
@@ -31,16 +30,15 @@ std::vector<SearchResult> Engine::search(const std::string& query) const {
     std::vector<SearchResult> finalResults;
     if (results.empty()) std::cout << "EMPTY!!!!!!!!!";
 
-    //  Check if a prefix search
-    if (results.begin()->first != tokenizer.isolateLastToken(query)) {
-        std::cout << "\nPERFORMING PREFIX SEARCH\n\n";
-    }
+    // if (results.begin()->first != tokenizer.isolateLastToken(query)) {
+    //     std::cout << "\nPERFORMING PREFIX SEARCH\n\n";
+    // }
     std::unordered_map<std::string, SearchResult> fileMap;
     for (const auto& [word, fileMapInner] : results) {
         for (const auto& [file, locations] : fileMapInner) {
             // create SearchResult if none exist
             if (fileMap.find(file) == fileMap.end()) {
-                fileMap[file] = SearchResult{file, 0.0,{}};
+                fileMap[file] = SearchResult{file, indexer.computeScore(file,word),{}};
             }
             TermMatch termMatch;
             termMatch.term = word;
@@ -58,14 +56,18 @@ std::vector<SearchResult> Engine::search(const std::string& query) const {
     for (auto& [file, result] : fileMap) {
         finalResults.push_back(result);
     }
-    printSearchResults(finalResults);
-    auto scoredResults = searcher.computeScores(results);
-    // for (const auto& [doc, score] : scoredResults) {
-    //     std::cout << "  " << doc << " (score: " << std::fixed << std::setprecision(2) << score << ")\n";
-    // }
+    // printSearchResults(finalResults);
     return finalResults;
 }
-void Engine::printSearchResults(const std::vector<SearchResult>& results) const{
+int Engine::getTotalIndexTerms() const {
+    return indexer.getTotalIndexTerms();
+}
+int Engine::getTotalTreeTerms() const {
+    return tst.countWords();
+}
+
+
+void printSearchResults(const std::vector<SearchResult>& results) {
     if (results.empty()) {
         std::cout << "No results found.\n";
         return;
@@ -85,10 +87,4 @@ void Engine::printSearchResults(const std::vector<SearchResult>& results) const{
         }
         std::cout << "-------------------------\n";
     }
-}
-int Engine::getTotalIndexTerms() const {
-    return indexer.getTotalIndexTerms();
-}
-int Engine::getTotalTreeTerms() const {
-    return tst.countWords();
 }
