@@ -13,32 +13,28 @@ struct WordLocation {
 
 ## On Hold
 - PDF reader modules
-
-
-## Planned Features
-# High Priority
+- Add AND / OR / NOT operators within queury search
 - Editor buffer search where memory is used for search of live edits
 and only reindex the file when it is saved
 
+## Planned Features
+# High Priority
+- Save / load index to disk
+
 # Mid Priority
-- Add AND / OR / NOT operators within queury search
+- Parallelism
 
 # Low Priority
-- BM25 ranking model
-- Save / load index to disk
-- Optimize context searching 
-
+- Implement wildcard search (ap*e -> apple, appliance)
 
 ## Experimental Ideas
 - Web UI (React or simple HTML)
-- Implement wildcard search (ap*e -> apple, appliance)
 - Search suggestions (auto-complete)
 - Return highlighted snippets (brown -> ... the quick **brown** fox jumps ...)
 - Chunk/block indexing where files are split into chunks so only specific blocks need reindex when file is updated
 
 
 ## Known Issues
-- Scoring must be reimplemented
 - Prefix+prefix are fickel to work (Pattern Unknown)
 - Index build slow for large files (needs parallelism)
 - FIXEDish Found grammer bug where single quotation marks don't store due to it being unicode which is not char sized

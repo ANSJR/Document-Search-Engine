@@ -38,9 +38,11 @@ void Indexer::buildIndex(const std::vector<std::string>& files, TernarySearchTre
         auto tokens = tokenizer.tokenize(textString);
         fileToTerms[filePath].first = tokens.size();
         for (const auto& [token, loc] : tokens) {
+            if (index.find(token) == index.end()) {
+                tst.insert(token);
+            }
             fileToTerms[filePath].second.insert(token);
             index[token][filePath].push_back(loc);
-            tst.insert(token);
         }
         // totalTokensFiled += static_cast<long long>(tokens.size());
     }
@@ -67,9 +69,11 @@ void Indexer::buildIndex(const std::string& filePath, TernarySearchTree& tst) {
     auto tokens = tokenizer.tokenize(textString);
     fileToTerms[filePath].first = tokens.size();
     for (const auto& [token, loc] : tokens) {
+        if (index.find(token) == index.end()) {
+            tst.insert(token);
+        }
         fileToTerms[filePath].second.insert(token);
         index[token][filePath].push_back(loc);
-        tst.insert(token);
     }
     // totalTokensFiled += static_cast<long long>(tokens.size());
 }
