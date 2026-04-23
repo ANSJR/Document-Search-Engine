@@ -19,8 +19,8 @@ and only reindex the file when it is saved
 
 ## Planned Features
 # High Priority
+- Replace term/file strings keys in index to IDs in order to reduce expensive hashing in the hot paths. 
 - Save / load index to disk
-
 # Mid Priority
 - Parallelism
 
