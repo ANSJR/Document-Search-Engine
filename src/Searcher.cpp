@@ -29,6 +29,7 @@ std::unordered_map<std::string, std::unordered_map<std::string, std::vector<Word
 // Intersect positions of two tokens within the same document
 std::vector<WordLocation> Searcher::positionalIntersect(const std::vector<WordLocation>& pos1, const std::vector<WordLocation>& pos2) {
     std::vector<WordLocation> result;
+    result.reserve(std::min(pos1.size(), pos2.size()));
     size_t i = 0, j = 0;
 
     while (i < pos1.size() && j < pos2.size()) {
@@ -62,13 +63,14 @@ Searcher::chainedPositionalIntersect(const std::unordered_map<std::string, std::
         }
         return finalResults;
     }
-    DocPosMap currentToken;
+    const DocPosMap* currentTokenPtr = nullptr;
+    DocPosMap currentComputed;
     std::string currentWord;
     bool firstWordSet = false;
     for (const auto& word : firstMatches) {
         auto it = index.find(word);
         if (it != index.end()) {
-            currentToken = it->second;
+            currentTokenPtr = &it->second;
             currentWord = word;
             firstWordSet = true;
             break;
@@ -90,7 +92,7 @@ Searcher::chainedPositionalIntersect(const std::unordered_map<std::string, std::
             if (nextIt == index.end()) continue;
             const DocPosMap& nextMap = nextIt->second;
             DocPosMap resultingFileAndPositions;
-            for (const auto& [file, pos1] : currentToken) {
+            for (const auto& [file, pos1] : *currentTokenPtr) {
                 auto found = nextMap.find(file);
                 if (found != nextMap.end()) {
                     auto newPositions = positionalIntersect(pos1, found->second);
@@ -100,20 +102,24 @@ Searcher::chainedPositionalIntersect(const std::unordered_map<std::string, std::
                 }
             }
             if (!resultingFileAndPositions.empty()) {
-                nextResults[nextWord] = resultingFileAndPositions;
+                nextResults.emplace(nextWord, std::move(resultingFileAndPositions));
             }
         }
         if (nextResults.empty()) return {};
         if (targetWords.size() == 1) {
             currentWord = targetWords[0];
-            currentToken = nextResults[targetWords[0]];
+            currentComputed = std::move(nextResults.begin()->second);
+            currentTokenPtr = &currentComputed;
         } else {
-            finalResults = nextResults;
+            finalResults = std::move(nextResults);
             break;
         }
     }
     if (finalResults.empty()) {
-        return {{currentWord, currentToken}};
+        if (currentTokenPtr == &currentComputed) {
+            return {{currentWord, std::move(currentComputed)}};
+        }
+        return {{currentWord, *currentTokenPtr}};
     }
     return finalResults;
 }
