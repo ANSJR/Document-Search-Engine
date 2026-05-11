@@ -64,9 +64,12 @@ std::string ApiServer::buildHealthResponse() const {
 }
 bool ApiServer::buildInitialIndex(const std::string& path) {
     std::vector<std::string> files;
-    for (const auto& entry : std::filesystem::directory_iterator(path)) {
-        if (entry.is_regular_file() && (entry.path().extension() == ".txt" || entry.path().extension() == ".md")) {
-            files.push_back(entry.path().string());
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
+        if (entry.is_regular_file()) {
+            auto ext = entry.path().extension();
+            if (ext == ".txt" || ext == ".md") {
+                files.push_back(entry.path().string());
+            }
         }
     }
     if (files.empty()) {
