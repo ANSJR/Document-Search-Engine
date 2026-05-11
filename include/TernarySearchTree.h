@@ -28,6 +28,7 @@ private:
     bool hasChildren(TreeNode* node) const;
     TreeNode* deleteHelper(TreeNode* curr, const std::string& key, size_t keyIndex);
     int traverseTSTCount(TreeNode* root) const;
+    void deleteTree(TreeNode* node);
 public:
     TernarySearchTree();
     ~TernarySearchTree();

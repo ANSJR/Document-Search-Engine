@@ -12,7 +12,17 @@ TreeNode::TreeNode(char data, TreeNode* lChild, TreeNode* mChild, TreeNode* rChi
 TernarySearchTree::TernarySearchTree() {
     root = nullptr;
 }
-TernarySearchTree::~TernarySearchTree() = default;
+TernarySearchTree::~TernarySearchTree() {
+    deleteTree(root);
+}
+
+void TernarySearchTree::deleteTree(TreeNode* node) {
+    if (!node) return;
+    deleteTree(node->lChild);
+    deleteTree(node->mChild);
+    deleteTree(node->rChild);
+    delete node;
+}
 
 void TernarySearchTree::insert(const std::string& key) {
     if (key.empty()) {return;}

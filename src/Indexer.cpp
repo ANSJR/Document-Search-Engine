@@ -11,22 +11,6 @@
 
 Indexer::Indexer() {}
 
-void Indexer::buildIndex(const std::vector<std::string>& files) {
-    // long long int totalTokensFiled = 0;
-
-    for (const auto& filepath : files) {
-        std::string textString = readText(filepath);
-        Tokenizer tokenizer;
-        auto tokens = tokenizer.tokenize(textString);
-        for (const auto& [token, loc] : tokens) {
-            index[token][filepath].push_back(loc);
-        }
-        // totalTokensFiled += static_cast<long long>(tokens.size());
-    }
-    // std::cout << "Total files " << files.size() << ", tokens filed "
-    //           << totalTokensFiled << " :" << std::endl;
-}
-
 void Indexer::buildIndex(const std::vector<std::string>& files, TernarySearchTree& tst) {
     // long long int totalTokensFiled = 0;
     for (const auto& filePath : files) {
@@ -44,6 +28,7 @@ void Indexer::buildIndex(const std::vector<std::string>& files, TernarySearchTre
             fileToTerms[filePath].second.insert(token);
             index[token][filePath].push_back(loc);
         }
+        TotalTokensInIndex += fileToTerms[filePath].first;
         // totalTokensFiled += static_cast<long long>(tokens.size());
     }
     // fileToTerms DEBUG
@@ -75,6 +60,7 @@ void Indexer::buildIndex(const std::string& filePath, TernarySearchTree& tst) {
         fileToTerms[filePath].second.insert(token);
         index[token][filePath].push_back(loc);
     }
+    TotalTokensInIndex += fileToTerms[filePath].first;
     // totalTokensFiled += static_cast<long long>(tokens.size());
 }
 void Indexer::removeFileFromIndex(const std::string& filePath, TernarySearchTree& tst) {
@@ -91,6 +77,7 @@ void Indexer::removeFileFromIndex(const std::string& filePath, TernarySearchTree
             tst.deleteTerm(term);
         }
     }
+    TotalTokensInIndex -= fileToTerms[filePath].first;
     fileToTerms.erase(filePath);
 }
 const std::unordered_map<std::string,std::unordered_map<std::string, std::vector<WordLocation>>>& Indexer::getIndex() const {
@@ -98,6 +85,9 @@ const std::unordered_map<std::string,std::unordered_map<std::string, std::vector
 }
 std::string Indexer::readText(const std::string& filePath) {
     std::ifstream file(filePath);
+    if (!file.is_open()) {
+        throw std::runtime_error("Could not open file: " + filePath);
+    }
     std::ostringstream buffer; // in-memory stream, dynamically sized std::string that is stored internally
     buffer << file.rdbuf(); // reads data from source buffer and writes to internally stored string
     return buffer.str(); // buffer.str returns finalized internally stored string
@@ -113,7 +103,7 @@ double Indexer::computeScore(const std::string& file, const std::string& term) c
     double df = index.at(term).size(); // Docs containing term
     double tf = index.at(term).at(file).size(); // Times term appears in this doc
     double docLen = fileToTerms.at(file).first; // Current doc token count
-    double curAvgDocLen = getTotalIndexTerms() / static_cast<double>(fileToTerms.size()); // Average token count across docs
+    double curAvgDocLen = TotalTokensInIndex / static_cast<double>(fileToTerms.size()); // Average token count across docs
     double k1 = 1.5; // TF tuning constant : Controls how much extra benefit repeated term matches give. So higher k1 = repeated occurrences matter more
     double b = 0.75; // Doc-length normalization constant : Controls how much document length penalizes/normalizes the score. b = 0.0 (ignore doc length) and b = 1.0 (full length normalization)
 
