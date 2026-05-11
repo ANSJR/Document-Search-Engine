@@ -3,10 +3,10 @@
 
 
 Searcher::Searcher(const std::unordered_map<std::string,
-            std::unordered_map<std::string, std::vector<WordLocation>>>& idx,
+            std::unordered_map<std::filesystem::path, std::vector<WordLocation>>>& idx,
             const TernarySearchTree& tst) : index(idx), tst(tst) {}
 
-std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>> Searcher::search(const std::string& query) {
+std::unordered_map<std::string, std::unordered_map<std::filesystem::path, std::vector<WordLocation>>> Searcher::search(const std::string& query) {
     std::vector<std::string> queryTokens = tokenizer.simpleTokenize(query);
     if (queryTokens.empty()) return {};
     // std::cout << "TOTAL TOKENS : " << tokenizer.getTotalTokens(query) << std::endl;
@@ -43,10 +43,10 @@ std::vector<WordLocation> Searcher::positionalIntersect(const std::vector<WordLo
     }
     return result;
 }
-std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>
-Searcher::chainedPositionalIntersect(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>& index, const std::vector<std::string>& queryTokens
+std::unordered_map<std::string, std::unordered_map<std::filesystem::path, std::vector<WordLocation>>>
+Searcher::chainedPositionalIntersect(const std::unordered_map<std::string, std::unordered_map<std::filesystem::path, std::vector<WordLocation>>>& index, const std::vector<std::string>& queryTokens
 ) {
-    using DocPosMap = std::unordered_map<std::string, std::vector<WordLocation>>;
+    using DocPosMap = std::unordered_map<std::filesystem::path, std::vector<WordLocation>>;
     std::unordered_map<std::string, DocPosMap> finalResults;
     if (queryTokens.empty()) return finalResults;
     std::vector<std::string> firstMatches;

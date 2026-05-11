@@ -8,10 +8,11 @@
 
 #include "../include/Indexer.h"
 #include <cmath>
+#include <iomanip>
 
 Indexer::Indexer() {}
 
-void Indexer::buildIndex(const std::vector<std::string>& files, TernarySearchTree& tst) {
+void Indexer::buildIndex(const std::vector<std::filesystem::path>& files, TernarySearchTree& tst) {
     // long long int totalTokensFiled = 0;
     for (const auto& filePath : files) {
         // Safety Check
@@ -30,6 +31,7 @@ void Indexer::buildIndex(const std::vector<std::string>& files, TernarySearchTre
         }
         TotalTokensInIndex += fileToTerms[filePath].first;
         // totalTokensFiled += static_cast<long long>(tokens.size());
+        std::cout << "File Indexed : " << std::setw(80) << filePath << std::endl;
     }
     // fileToTerms DEBUG
     // for (const auto& [file, terms] : fileToTerms.second) {
@@ -63,7 +65,7 @@ void Indexer::buildIndex(const std::string& filePath, TernarySearchTree& tst) {
     TotalTokensInIndex += fileToTerms[filePath].first;
     // totalTokensFiled += static_cast<long long>(tokens.size());
 }
-void Indexer::removeFileFromIndex(const std::string& filePath, TernarySearchTree& tst) {
+void Indexer::removeFileFromIndex(const std::filesystem::path& filePath, TernarySearchTree& tst) {
     // Safety Check
     if(!filePresent(filePath)) {
         return;
@@ -80,13 +82,13 @@ void Indexer::removeFileFromIndex(const std::string& filePath, TernarySearchTree
     TotalTokensInIndex -= fileToTerms[filePath].first;
     fileToTerms.erase(filePath);
 }
-const std::unordered_map<std::string,std::unordered_map<std::string, std::vector<WordLocation>>>& Indexer::getIndex() const {
+const std::unordered_map<std::string,std::unordered_map<std::filesystem::path, std::vector<WordLocation>>>& Indexer::getIndex() const {
     return index;
 }
-std::string Indexer::readText(const std::string& filePath) {
+std::string Indexer::readText(const std::filesystem::path& filePath) {
     std::ifstream file(filePath);
     if (!file.is_open()) {
-        throw std::runtime_error("Could not open file: " + filePath);
+        throw std::runtime_error("Could not open file: " + filePath.u8string());
     }
     std::ostringstream buffer; // in-memory stream, dynamically sized std::string that is stored internally
     buffer << file.rdbuf(); // reads data from source buffer and writes to internally stored string
@@ -95,10 +97,10 @@ std::string Indexer::readText(const std::string& filePath) {
 int Indexer::getTotalIndexTerms() const {
     return index.size();
 }
-bool Indexer::filePresent(const std::string& filePath) const {
+bool Indexer::filePresent(const std::filesystem::path& filePath) const {
     return fileToTerms.find(filePath) != fileToTerms.end();
 }
-double Indexer::computeScore(const std::string& file, const std::string& term) const {
+double Indexer::computeScore(const std::filesystem::path& file, const std::string& term) const {
     double N = fileToTerms.size(); // Total docs
     double df = index.at(term).size(); // Docs containing term
     double tf = index.at(term).at(file).size(); // Times term appears in this doc

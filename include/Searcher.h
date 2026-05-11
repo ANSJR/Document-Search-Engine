@@ -30,14 +30,14 @@
  */
 class Searcher {
 private:
-    const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>& index;
+    const std::unordered_map<std::string, std::unordered_map<std::filesystem::path, std::vector<WordLocation>>>& index;
     const TernarySearchTree& tst;
     Tokenizer tokenizer;
 
     std::vector<WordLocation> positionalIntersect(const std::vector<WordLocation>& pos1, const std::vector<WordLocation>& pos2);
 
-    std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>> chainedPositionalIntersect(
-    const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>& index,
+    std::unordered_map<std::string, std::unordered_map<std::filesystem::path, std::vector<WordLocation>>> chainedPositionalIntersect(
+    const std::unordered_map<std::string, std::unordered_map<std::filesystem::path, std::vector<WordLocation>>>& index,
     const std::vector<std::string>& queryTokens);
 
 
@@ -53,9 +53,9 @@ private:
     // added previousToken
 public:
     // default constructor
-    Searcher(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>& idx,
+    Searcher(const std::unordered_map<std::string, std::unordered_map<std::filesystem::path, std::vector<WordLocation>>>& idx,
              const TernarySearchTree& tst);
-    std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>> search(const std::string& query);
+    std::unordered_map<std::string, std::unordered_map<std::filesystem::path, std::vector<WordLocation>>> search(const std::string& query);
 };
 
 #endif

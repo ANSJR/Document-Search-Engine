@@ -63,12 +63,12 @@ std::string ApiServer::buildHealthResponse() const {
     return "Server is currently : " + state;
 }
 bool ApiServer::buildInitialIndex(const std::string& path) {
-    std::vector<std::string> files;
+    std::vector<std::filesystem::path> files;
     for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
         if (entry.is_regular_file()) {
             auto ext = entry.path().extension();
             if (ext == ".txt" || ext == ".md") {
-                files.push_back(entry.path().string());
+                files.push_back(entry.path());
             }
         }
     }
@@ -119,7 +119,7 @@ std::string ApiServer::buildSearchResponse(const std::string& query) const {
     for (size_t i = 0; i < results.size(); ++i) {
         const auto& result = results[i];
         out << "{";
-        out << "\"file\":\"" << escapeJson(result.file) << "\",";
+        out << "\"file\":\"" << escapeJson(result.file.u8string()) << "\",";
         out << "\"score\":" << result.score << ",";
         out << "\"termCount\":" << result.termMatches.size() << ",";
         out << "\"termMatches\":[";

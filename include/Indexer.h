@@ -11,6 +11,7 @@
 #include "Tokenizer.h"
 #include "TernarySearchTree.h"
 #include "WordLocation.h"
+#include <filesystem>
 
 #include <iostream>
 #include <memory>
@@ -26,18 +27,18 @@
 class Indexer {
 private:
     unsigned long long int TotalTokensInIndex = 0;
-    std::unordered_map<std::string, std::pair<size_t,std::unordered_set<std::string>>> fileToTerms;
-    std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>> index;
+    std::unordered_map<std::filesystem::path, std::pair<size_t,std::unordered_set<std::string>>> fileToTerms;
+    std::unordered_map<std::string, std::unordered_map<std::filesystem::path, std::vector<WordLocation>>> index;
 public:
     Indexer();
-    void buildIndex(const std::vector<std::string>& files, TernarySearchTree& tst);
+    void buildIndex(const std::vector<std::filesystem::path>& files, TernarySearchTree& tst);
     void buildIndex(const std::string& filePath, TernarySearchTree& tst);
-    void removeFileFromIndex(const std::string& filePath, TernarySearchTree& tst);
-    const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<WordLocation>>>& getIndex() const;
-    std::string readText(const std::string& filePath);
+    void removeFileFromIndex(const std::filesystem::path& filePath, TernarySearchTree& tst);
+    const std::unordered_map<std::string, std::unordered_map<std::filesystem::path, std::vector<WordLocation>>>& getIndex() const;
+    std::string readText(const std::filesystem::path& filePath);
     int getTotalIndexTerms() const;
-    bool filePresent(const std::string& filePath) const;
-    double computeScore(const std::string& term, const std::string& file) const;
+    bool filePresent(const std::filesystem::path& filePath) const;
+    double computeScore(const std::filesystem::path& file, const std::string& term) const;
 };
 
 #endif

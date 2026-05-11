@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <cstddef>
+#include <filesystem>
 
 struct MatchOccurrence {
     size_t tokenPos;
@@ -16,7 +17,7 @@ struct TermMatch {
 };
 
 struct SearchResult {
-    std::string file;
+    std::filesystem::path file;
     double score;
     std::vector<TermMatch> termMatches;
 };

@@ -5,6 +5,7 @@
 #include "../include/Searcher.h"
 #include "../include/TernarySearchTree.h"
 #include "../include/Tokenizer.h"
+#include <filesystem>
 
 
 class Engine {
@@ -15,7 +16,7 @@ private:
 
 public:
     Engine();
-    void indexFiles(const std::vector<std::string>& files);
+    void indexFiles(const std::vector<std::filesystem::path>& files);
     void indexFile(const std::string& filePath);
     void deleteTermFromFile(const std::string& filePath);
     std::vector<SearchResult> search(const std::string& query) const;

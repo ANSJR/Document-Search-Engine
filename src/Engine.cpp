@@ -2,7 +2,7 @@
 #include "../include/Engine.h"
 
 Engine::Engine() {}
-void Engine::indexFiles(const std::vector<std::string>& files) {
+void Engine::indexFiles(const std::vector<std::filesystem::path>& files) {
     indexer.buildIndex(files, tst);
     // const auto& index = indexer.getIndex();
     // for (const auto& [word, docMap] : index) {
@@ -33,7 +33,7 @@ std::vector<SearchResult> Engine::search(const std::string& query) const {
     // if (results.begin()->first != tokenizer.isolateLastToken(query)) {
     //     std::cout << "\nPERFORMING PREFIX SEARCH\n\n";
     // }
-    std::unordered_map<std::string, SearchResult> fileMap;
+    std::unordered_map<std::filesystem::path, SearchResult> fileMap;
     for (const auto& [word, fileMapInner] : results) {
         for (const auto& [file, locations] : fileMapInner) {
             // create SearchResult if none exist
