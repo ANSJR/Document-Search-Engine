@@ -2,6 +2,7 @@
 
 A C++ document search engine for indexing and searching local text-based files, designed as a backend component that can later be exposed through a local API and can be integrated into other applications.
 
+
 ## Current Status
 
 **Status: v1.0 (Initial Release)**
@@ -10,16 +11,38 @@ The document search engine is fully functional end-to-end and actively evolving.
 
 Further work will focus on performance improvements, expanded file support, and API refinement/additions.
 
-## Quick Start
 
-```bash
-make
-make run
-```
-Once the server is running, API can be called at:
-http://localhost:2323
+## Architecture
 
----
+The search engine is divided into several core components:
+
+- **Document Parser**  
+  Reads text files, tokenizes content, removes punctuation, and normalizes terms.
+
+- **Inverted Index**  
+  Maps terms to posting lists containing:
+  - document frequency
+  - term frequency
+  - positional metadata
+
+- **Ternary Search Tree (TST)**  
+  Stores indexed terms for efficient prefix-based lookup and autocomplete-style traversal.
+
+- **Ranking Engine**  
+  Uses BM25 scoring to rank documents by relevance.
+
+- **Search API**  
+  Exposes query functionality through a lightweight HTTP interface using Crow.
+
+
+## Tech Stack
+
+- C++17
+- Crow HTTP framework
+- Inverted index
+- Ternary Search Tree (TST)
+- BM25 style ranking
+
 
 ### Features
 - Indexes local `.txt` and `.md` files from a directory
@@ -32,21 +55,11 @@ http://localhost:2323
 - Exposes a set of HTTP API endpoints (see below)
 - Builds and runs from the command line
 
-### Planned
-
-- Improving result formatting of JSON search results for integration into future apps
-- Cleaning up architecture between engine, search, indexing, and API layers
-- Snippet/context extraction via byte offsets
-- Multithreaded parallel index construction
-- Integration into a future application
-
----
 
 ## Project Goal
 
 The long-term goal of this project is to become a reusable local search backend that can be attached to other software or used stand alone as a highly efficient tool with a strong emphasis on performance and efficiency.
 
----
 
 ## Current Search Data Model
 
@@ -56,27 +69,82 @@ The engine stores positional information for matched terms, including:
 - byte offset
 - token length
 
----
+Documents -> Tokenizer -> Inverted Index + TST -> BM25 Ranking -> Query Results
 
-## Tech Stack
+## Why a Ternary Search Tree?
 
-- C++17
-- Crow HTTP framework
-- Inverted index
-- Ternary Search Tree (TST)
-- BM25 style ranking
+A Ternary Search Tree (TST) was chosen over a standard trie or hash map because it provides a balance between:
 
----
+- memory efficiency
+- prefix-search performance
+- ordered traversal capability
 
-## Architecture Overview
+### Comparison
 
-- **Tokenizer** handles normalization and token extraction
-- **Indexer** builds and updates the inverted index
-- **Searcher** performs ranked retrieval and query evaluation
-- **TernarySearchTree** supports efficient prefix-based lookup
-- **API server** exposes indexing and search functionality over HTTP
+| Structure | Advantages | Disadvantages |
+|---|---|---|
+| Hash Map | Fast exact lookup | No prefix search |
+| Trie | Fast prefix queries | High memory usage |
+| TST | Prefix support with lower memory overhead | Slightly slower than trie |
 
----
+The TST enables efficient:
+- autocomplete
+- partial matching
+- lexicographical traversal
+
+while using less memory than a traditional trie.
+
+
+## BM25 Ranking
+
+Document relevance is ranked using the BM25 scoring algorithm.
+
+The score for a term is computed using:
+
+$$
+BM25(q,d) = IDF(q) * ( f(q,d)*(k1+1) / ( f(q,d) + k1*(1-b+b*|d|/avgdl) ) )
+$$
+
+Where:
+
+- `f(q,d)` = frequency of term in document
+- `|d|` = document length
+- `avgdl` = average document length
+- `k1` and `b` = tuning constants
+
+BM25 was selected because it:
+
+- handles term frequency saturation
+- normalizes document length
+- performs well in real-world information retrieval systems
+
+## Complexity Analysis
+
+| Operation | Complexity |
+|---|---|
+| Exact term lookup | O(l) average |
+| Prefix search | O(p + k) |
+| Document insertion | O(t) |
+| BM25 ranking | O(m log r) |
+
+Where:
+
+- `l` = term length
+- `p` = prefix length
+- `k` = matched terms
+- `t` = number of tokens
+- `m` = matched documents
+- `r` = ranked results
+
+## Quick Start
+
+```bash
+make
+make run
+```
+Once the server is running, API can be called at:
+http://localhost:2323
+
 
 ### Current endpoints
 **GET /health**  
@@ -109,6 +177,7 @@ curl http://localhost:2323/indexHealth
 curl "http://localhost:2323/search?q=birthday"
 curl -X DELETE "http://localhost:2323/index/file?path=dataTemp/BBcase.txt"
 curl http://localhost:2323/indexHealth
+curl -X POST "http://localhost:2323/initialIndex?path=GutenbergText"
 ```
 {
   "query": "warr",

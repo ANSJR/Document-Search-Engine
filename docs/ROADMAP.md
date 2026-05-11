@@ -17,21 +17,52 @@ struct WordLocation {
 - Editor buffer search where memory is used for search of live edits
 and only reindex the file when it is saved
 
-## Planned Features
+## Planned
+
 # High Priority
-- Replace term/file strings keys in index to IDs in order to reduce expensive hashing in the hot paths. 
-- Save / load index to disk
+- Unit tests using GoogleTest
+- Benchmark suite for:
+  - indexing speed
+  - query latency
+  - prefix search performance
+  - scaling with document count
+- Multithreaded document indexing
+- Thread pool for parallel file parsing
+- Serialize index to disk
+- Fast index reload without rebuilding
+- Cleaning up architecture between engine, search, indexing, and API layers
+- Integration tests for indexing and querying
+
 # Mid Priority
-- Parallelism
+- Replace term/file strings keys in index to IDs in order to reduce expensive hashing in the hot paths.
+- Memory usage profiling and optimization
+- Binary index format
+- Compressed posting lists maybe
+- API pagination
+- Structured JSON logging
+- Dockerized deployment
 
 # Low Priority
-- Implement wildcard search (ap*e -> apple, appliance)
+- Snippet/context extraction via byte offsets
+- Improving result formatting of JSON search results for integration into future apps
+- Unit tests using GoogleTest
+- Integration tests for indexing and querying
 
 ## Experimental Ideas
 - Web UI (React or simple HTML)
 - Search suggestions (auto-complete)
 - Return highlighted snippets (brown -> ... the quick **brown** fox jumps ...)
 - Chunk/block indexing where files are split into chunks so only specific blocks need reindex when file is updated
+- Test coverage for:
+  - tokenization
+  - ranking correctness
+  - deletion
+  - prefix search
+  - edge cases
+- CI pipeline with automated testing
+- filtering of api GET /search?q=apple&type=pdf
+- Rate limiting and request validation
+- Compressed posting lists 
 
 
 ## Known Issues
