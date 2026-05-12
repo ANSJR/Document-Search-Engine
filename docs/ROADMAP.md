@@ -20,8 +20,8 @@ and only reindex the file when it is saved
 ## Planned
 
 # High Priority
-- Unit tests using GoogleTest
-- Benchmark suite for:
+- ~~Unit tests using GoogleTest~~
+- ~~Benchmark suite for:~~
   - indexing speed
   - query latency
   - prefix search performance
