@@ -22,13 +22,21 @@
 #include <vector>
 #include <string>
 
-
+using LocalIndex = std::unordered_map<std::string, std::vector<WordLocation>>;
+using LocalFileToTerms = std::pair<size_t,std::unordered_set<std::string>>;
+struct PartialResult {
+    std::filesystem::path filePath;
+    LocalIndex localIndex;
+    LocalFileToTerms localFileToTerms;
+};
 
 class Indexer {
 private:
-    unsigned long long int TotalTokensInIndex = 0;
+    unsigned long long int totalTokensInIndex = 0;
     std::unordered_map<std::filesystem::path, std::pair<size_t,std::unordered_set<std::string>>> fileToTerms;
     std::unordered_map<std::string, std::unordered_map<std::filesystem::path, std::vector<WordLocation>>> index;
+    PartialResult partialIndexThreadWorkers(const std::filesystem::path& files);
+    void mergePartialIndexThreadWorkers(PartialResult&& partial, TernarySearchTree& tst);
 public:
     Indexer();
     void buildIndex(const std::vector<std::filesystem::path>& files, TernarySearchTree& tst);
