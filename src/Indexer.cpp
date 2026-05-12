@@ -31,7 +31,7 @@ void Indexer::buildIndex(const std::vector<std::filesystem::path>& files, Ternar
         }
         TotalTokensInIndex += fileToTerms[filePath].first;
         // totalTokensFiled += static_cast<long long>(tokens.size());
-        std::cout << "File Indexed : " << std::setw(80) << filePath << std::endl;
+        //std::cout << "File Indexed : " << std::setw(80) << filePath << std::endl;
     }
     // fileToTerms DEBUG
     // for (const auto& [file, terms] : fileToTerms.second) {
@@ -45,7 +45,7 @@ void Indexer::buildIndex(const std::vector<std::filesystem::path>& files, Ternar
     // std::cout << "Total files " << files.size() << ", tokens filed "
     //           << totalTokensFiled << " :" << std::endl;
 }
-void Indexer::buildIndex(const std::string& filePath, TernarySearchTree& tst) {
+void Indexer::buildIndex(const std::filesystem::path& filePath, TernarySearchTree& tst) {
     if(filePresent(filePath)) {
         removeFileFromIndex(filePath, tst);
     }
@@ -64,6 +64,7 @@ void Indexer::buildIndex(const std::string& filePath, TernarySearchTree& tst) {
     }
     TotalTokensInIndex += fileToTerms[filePath].first;
     // totalTokensFiled += static_cast<long long>(tokens.size());
+    //std::cout << "File Indexed : " << std::setw(80) << filePath << std::endl;
 }
 void Indexer::removeFileFromIndex(const std::filesystem::path& filePath, TernarySearchTree& tst) {
     // Safety Check

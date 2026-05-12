@@ -17,10 +17,10 @@ void Engine::indexFiles(const std::vector<std::filesystem::path>& files) {
     //     }
     // }
 }
-void Engine::indexFile(const std::string& filePath) {
+void Engine::indexFile(const std::filesystem::path& filePath) {
     indexer.buildIndex(filePath, tst);
 }
-void Engine::deleteTermFromFile(const std::string& filePath) {
+void Engine::deleteTermFromFile(const std::filesystem::path& filePath) {
     indexer.removeFileFromIndex(filePath, tst);
 }
 std::vector<SearchResult> Engine::search(const std::string& query) const {

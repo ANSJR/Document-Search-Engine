@@ -17,8 +17,8 @@ private:
 public:
     Engine();
     void indexFiles(const std::vector<std::filesystem::path>& files);
-    void indexFile(const std::string& filePath);
-    void deleteTermFromFile(const std::string& filePath);
+    void indexFile(const std::filesystem::path& filePath);
+    void deleteTermFromFile(const std::filesystem::path& filePath);
     std::vector<SearchResult> search(const std::string& query) const;
     int getTotalIndexTerms() const;
     int getTotalTreeTerms() const;

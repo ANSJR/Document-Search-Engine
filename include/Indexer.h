@@ -32,7 +32,7 @@ private:
 public:
     Indexer();
     void buildIndex(const std::vector<std::filesystem::path>& files, TernarySearchTree& tst);
-    void buildIndex(const std::string& filePath, TernarySearchTree& tst);
+    void buildIndex(const std::filesystem::path& filePath, TernarySearchTree& tst);
     void removeFileFromIndex(const std::filesystem::path& filePath, TernarySearchTree& tst);
     const std::unordered_map<std::string, std::unordered_map<std::filesystem::path, std::vector<WordLocation>>>& getIndex() const;
     std::string readText(const std::filesystem::path& filePath);

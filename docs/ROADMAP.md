@@ -28,10 +28,9 @@ and only reindex the file when it is saved
   - scaling with document count
 - Multithreaded document indexing
 - Thread pool for parallel file parsing
-- Serialize index to disk
-- Fast index reload without rebuilding
+- Serialize index to disk with a fast index reload without rebuilding
 - Cleaning up architecture between engine, search, indexing, and API layers
-- Integration tests for indexing and querying
+
 
 # Mid Priority
 - Replace term/file strings keys in index to IDs in order to reduce expensive hashing in the hot paths.
