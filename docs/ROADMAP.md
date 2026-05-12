@@ -26,7 +26,7 @@ and only reindex the file when it is saved
   - query latency
   - prefix search performance
   - scaling with document count
-- Multithreaded document indexing
+- ~~Multithreaded document indexing~~
 - Thread pool for parallel file parsing
 - Serialize index to disk with a fast index reload without rebuilding
 - Cleaning up architecture between engine, search, indexing, and API layers

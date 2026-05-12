@@ -58,18 +58,25 @@ void Indexer::buildIndex(const std::filesystem::path& filePath, TernarySearchTre
     }
 
     // long long int totalTokensFiled = 0;
+    LocalIndex localIndex;
+    LocalFileToTerms localFileToTerms;
     std::string textString = readText(filePath);
     Tokenizer tokenizer;
     auto tokens = tokenizer.tokenize(textString);
-    fileToTerms[filePath].first = tokens.size();
+    localFileToTerms.first = tokens.size();
+
     for (const auto& [token, loc] : tokens) {
-        if (index.find(token) == index.end()) {
-            tst.insert(token);
-        }
-        fileToTerms[filePath].second.insert(token);
-        index[token][filePath].push_back(loc);
+        localFileToTerms.second.insert(token);
+        localIndex[token].push_back(loc);
     }
-    totalTokensInIndex += fileToTerms[filePath].first;
+
+    for (auto& [token, locations] : localIndex) {
+        auto [it, inserted] = index.try_emplace(token);
+        if (inserted) {tst.insert(token);}
+        it->second[filePath] = std::move(locations);
+    }
+    fileToTerms[filePath] = std::move(localFileToTerms);
+    totalTokensInIndex += tokens.size();
     // totalTokensFiled += static_cast<long long>(tokens.size());
     //std::cout << "File Indexed : " << std::setw(80) << filePath << std::endl;
 }
