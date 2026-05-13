@@ -120,21 +120,38 @@ BM25 was selected because it:
 
 ## Complexity Analysis
 
-| Operation | Complexity |
-|---|---|
-| Exact term lookup | O(l) average |
-| Prefix search | O(p + k) |
-| Document insertion | O(t) |
-| BM25 ranking | O(m log r) |
+| Operation | Complexity | Notes |
+|---|---|---|
+| Exact term lookup | **O(1)** average | Hash map lookup for full-word queries |
+| Prefix autocomplete | **O(P + K)** average | Traverse prefix + explore matching subtree |
+| Tokenization | **O(N)** | Single pass through document text |
+| Document indexing | **O(T)** average | Processes every token once |
+| TST insertion | **O(L)** average | Depends on word length and tree shape |
+| Phrase search | **O(a + b)** | Positional posting-list intersection |
+| BM25 score calculation | **O(1)** per doc-term pair | Constant-time arithmetic |
+| Result ranking | **O(R log R)** | Sorting matched results by score |
+| Remove indexed document | **O(U × deleteCost)** | Removes file references from postings |
+| Full TST traversal | **O(M)** | Visits every node in tree |
 
-Where:
+### Symbols / Keys
 
-- `l` = term length
-- `p` = prefix length
-- `k` = matched terms
-- `t` = number of tokens
-- `m` = matched documents
-- `r` = ranked results
+- `N` = number of characters in input text
+- `T` = total tokens in a document
+- `U` = unique terms in a document
+- `L` = term length
+- `P` = prefix length
+- `K` = number of matched subtree nodes/terms
+- `M` = total TST nodes
+- `R` = ranked result count
+- `a, b` = posting list sizes for phrase intersections
+
+
+### Notes
+
+- Exact searches use hash maps for average constant-time lookups.
+- Prefix searches are powered by a Ternary Search Tree (TST).
+- Phrase queries rely on positional posting-list intersections.
+- BM25 scoring itself is constant time, but the final ranking requires sorting results.
 
 ## Quick Start
 

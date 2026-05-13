@@ -7,7 +7,7 @@ CXX = g++
 DEBUG_FLAGS = -std=c++17 -Wall -Wextra -g -O0 -Iinclude
 RELEASE_FLAGS = -std=c++17 -Wall -Wextra -O3 -Iinclude
 
-CXXFLAGS = $(DEBUG_FLAGS)
+CXXFLAGS = $(RELEASE_FLAGS)
 
 # Default (Unix/macOS)
 LDFLAGS = -pthread
@@ -42,7 +42,7 @@ BENCH_OUT = runBenchmarks
 # Main Targets
 # =========================
 
-all: $(OUT) $(TEST_OUT) $(BENCH_OUT)
+all: $(OUT)
 
 # =========================
 # Main Search Engine
@@ -98,9 +98,20 @@ test: $(TEST_OUT)
 bench: $(BENCH_OUT)
 	./$(BENCH_OUT)
 
-debug: $(OUT)
+debugger: $(OUT)
+ifeq ($(OS),Windows_NT)
 	gdb ./$(OUT)
+else
+	lldb ./$(OUT)
+endif
+	
+release:
+	$(MAKE) clean
+	$(MAKE) CXXFLAGS="$(RELEASE_FLAGS)"
 
+debug:
+	$(MAKE) clean
+	$(MAKE) CXXFLAGS="$(DEBUG_FLAGS)"
 # =========================
 # Cleanup
 # =========================
