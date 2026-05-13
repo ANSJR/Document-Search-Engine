@@ -16,7 +16,13 @@ Indexer::Indexer() {}
 PartialResult Indexer::partialIndexThreadWorkers(const std::filesystem::path& filePath) {
     PartialResult result;
     result.filePath = filePath;
-    std::string textString = readText(filePath);
+    std::string textString;
+    try {
+        textString = readText(filePath);
+    }
+    catch (const std::exception& e) {
+        std::cerr << e.what() << '\n';
+    }
     Tokenizer tokenizer;
     auto tokens = tokenizer.tokenize(textString);
     result.localFileToTerms.first = tokens.size();
@@ -40,18 +46,20 @@ void Indexer::mergePartialIndexThreadWorkers(PartialResult&& partial, TernarySea
     totalTokensInIndex += partial.localFileToTerms.first;
 }
 void Indexer::buildIndex(const std::vector<std::filesystem::path>& files, TernarySearchTree& tst) {
+    const size_t maxThreads = std::thread::hardware_concurrency();
 
-    std::vector<std::future<PartialResult>> futures;
-    for (const auto& filePath : files) {
-        futures.push_back(std::async(std::launch::async, &Indexer::partialIndexThreadWorkers, this, filePath));
-    }
-    for (auto& future : futures) {
+    for (size_t i = 0; i < files.size(); i += maxThreads) {
+        std::vector<std::future<PartialResult>> futures;
+        size_t end = std::min(i + maxThreads, files.size());
+        for (size_t j = i; j < end; j++) {
+            futures.push_back(std::async(std::launch::async, &Indexer::partialIndexThreadWorkers, this, files[j]));
+        }
+        for (auto& future : futures) {
             PartialResult partial = future.get();
-            mergePartialIndexThreadWorkers(std::move(partial), tst);
+            mergePartialIndexThreadWorkers(std::move(partial),tst);
+        }
     }
-
 }
-
 void Indexer::buildIndex(const std::filesystem::path& filePath, TernarySearchTree& tst) {
     if(filePresent(filePath)) {
         removeFileFromIndex(filePath, tst);
@@ -60,7 +68,13 @@ void Indexer::buildIndex(const std::filesystem::path& filePath, TernarySearchTre
     // long long int totalTokensFiled = 0;
     LocalIndex localIndex;
     LocalFileToTerms localFileToTerms;
-    std::string textString = readText(filePath);
+    std::string textString;
+    try {
+        textString = readText(filePath);
+    }
+    catch (const std::exception& e) {
+        std::cerr << e.what() << '\n';
+    }
     Tokenizer tokenizer;
     auto tokens = tokenizer.tokenize(textString);
     localFileToTerms.first = tokens.size();
@@ -101,9 +115,9 @@ const std::unordered_map<std::string,std::unordered_map<std::filesystem::path, s
     return index;
 }
 std::string Indexer::readText(const std::filesystem::path& filePath) {
-    std::ifstream file(filePath);
+    std::ifstream file(filePath, std::ios::binary);
     if (!file.is_open()) {
-        throw std::runtime_error("Could not open file: " + filePath.u8string());
+        throw std::runtime_error("Could not open file(404): " + filePath.string());
     }
     std::ostringstream buffer; // in-memory stream, dynamically sized std::string that is stored internally
     buffer << file.rdbuf(); // reads data from source buffer and writes to internally stored string

@@ -17,7 +17,7 @@ static void BM_SingleFileIndexing(benchmark::State& state)
 }
 
 BENCHMARK(BM_SingleFileIndexing)
-    ->MinTime(10.0)
+    // ->MinTime(5.0)
     ->Unit(benchmark::kMillisecond);
 //
 // Bulk Index Benchmark
@@ -25,6 +25,7 @@ BENCHMARK(BM_SingleFileIndexing)
 
 static std::vector<std::filesystem::path> getFiles() {
     std::filesystem::path path = "benchmarks/BenchDocs";
+    // std::filesystem::path path = "GutenbergText";
     std::vector<std::filesystem::path> files;
     for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
         if (entry.is_regular_file()) {
@@ -55,7 +56,9 @@ BENCHMARK(BM_BulkIndexing)
     ->Arg(1)
     ->Arg(10)
     ->Arg(100)
-    ->MinTime(10.0)
+    // ->Iterations(10)
+    // ->Arg(getFiles().size())
+    ->MinTime(5.0)
     ->Unit(benchmark::kMillisecond);
 
 static void BM_ReadText(benchmark::State& state)

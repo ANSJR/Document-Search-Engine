@@ -31,7 +31,7 @@ static void BM_Search(benchmark::State& state)
 
     static Searcher searcher(idx.getIndex(), tst);
 
-    std::string query = "Beyond Birthday";
+    std::string query = "Birthday";
 
     for (auto _ : state) {
         auto results = searcher.search(query);
