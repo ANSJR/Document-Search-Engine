@@ -9,21 +9,7 @@ Searcher::Searcher(const std::unordered_map<std::string,
 std::unordered_map<std::string, std::unordered_map<std::filesystem::path, std::vector<WordLocation>>> Searcher::search(const std::string& query) {
     std::vector<std::string> queryTokens = tokenizer.simpleTokenize(query);
     if (queryTokens.empty()) return {};
-    // std::cout << "TOTAL TOKENS : " << tokenizer.getTotalTokens(query) << std::endl;
-
     auto results = chainedPositionalIntersect(index, queryTokens);
-
-    // std::cout << "\n\nDEBUGGING PRINT Query (" << query << ") : \n";
-    // for (const auto& [word, docMap] : results) {
-    //     for (const auto& [file, positions] : docMap) {
-    //         std::cout << "  " << file << " -> ";
-    //         for (const WordLocation& pos : positions) {
-    //             std::cout << "(" << pos.tokenPos << "," << pos.byteOffset << ") ";
-    //         }
-    //         std::cout << "\n";
-    //     }
-    // }
-    // std::cout << std::endl;
     return results;
 }
 // Intersect positions of two tokens within the same document

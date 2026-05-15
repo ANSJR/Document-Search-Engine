@@ -21,19 +21,23 @@
 #include <unordered_set>
 #include <vector>
 #include <string>
-
-using LocalIndex = std::unordered_map<std::string, std::vector<WordLocation>>;
-using LocalFileToTerms = std::pair<size_t,std::unordered_set<std::string>>;
+// std::pair<size_t,std::unordered_set<std::string>>
+struct FileMetadata {
+    size_t tokenCount;
+    std::unordered_set<std::string> uniqueTerms;
+    uint64_t generation = 0;
+};
+using LocalIndex = std::unordered_map<std::string,std::vector<WordLocation>>;
+using LocalFileToTerms = FileMetadata;
 struct PartialResult {
     std::filesystem::path filePath;
     LocalIndex localIndex;
     LocalFileToTerms localFileToTerms;
 };
-
 class Indexer {
 private:
     unsigned long long int totalTokensInIndex = 0;
-    std::unordered_map<std::filesystem::path, std::pair<size_t,std::unordered_set<std::string>>> fileToTerms;
+    std::unordered_map<std::filesystem::path, FileMetadata> fileToTerms;
     std::unordered_map<std::string, std::unordered_map<std::filesystem::path, std::vector<WordLocation>>> index;
     PartialResult partialIndexThreadWorkers(const std::filesystem::path& files);
     void mergePartialIndexThreadWorkers(PartialResult&& partial, TernarySearchTree& tst);
@@ -45,6 +49,7 @@ public:
     const std::unordered_map<std::string, std::unordered_map<std::filesystem::path, std::vector<WordLocation>>>& getIndex() const;
     std::string readText(const std::filesystem::path& filePath);
     int getTotalIndexTerms() const;
+    uint64_t getFileGen(const std::filesystem::path& filePath) const;
     bool filePresent(const std::filesystem::path& filePath) const;
     double computeScore(const std::filesystem::path& file, const std::string& term) const;
 };
