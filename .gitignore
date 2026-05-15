@@ -3,7 +3,12 @@
 *.exe
 /build/
 
+# VSCode local settings
+.vscode/
+
+# macOS debug bundles
+*.dSYM/
+
 # Ignore all data folders
 GutenbergText/
 benchmarks/BenchDocs
-*.dSYM/
