@@ -66,9 +66,10 @@ bool ApiServer::buildInitialIndex(const std::string& path) {
     std::vector<std::filesystem::path> files;
     for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
         if (entry.is_regular_file()) {
-            auto ext = entry.path().extension();
+            auto normalized = std::filesystem::weakly_canonical(entry.path());
+            auto ext = normalized.extension();
             if (ext == ".txt" || ext == ".md") {
-                files.push_back(entry.path());
+                files.push_back(normalized);
             }
         }
     }
@@ -85,12 +86,13 @@ bool ApiServer::addFileToIndex(const std::string& filePath) {
     if (!std::filesystem::exists(path) || !std::filesystem::is_regular_file(path)) {
         return false;
     }
+    path = std::filesystem::weakly_canonical(path);
     std::string ext = path.extension().string();
     if (ext != ".txt" && ext != ".md") {
         return false;
     }
 
-    engine.indexFile(filePath);
+    engine.indexFile(path);
     return true;
 }
 bool ApiServer::deleteFileFromIndex(const std::string& filePath) {
@@ -99,12 +101,13 @@ bool ApiServer::deleteFileFromIndex(const std::string& filePath) {
     if (!std::filesystem::exists(path) || !std::filesystem::is_regular_file(path)) {
         return false;
     }
+    path = std::filesystem::weakly_canonical(path);
     std::string ext = path.extension().string();
     if (ext != ".txt" && ext != ".md") {
         return false;
     }
 
-    engine.deleteTermFromFile(filePath);
+    engine.deleteTermFromFile(path);
     return true;
 }
 std::string ApiServer::buildSearchResponse(const std::string& query) const {

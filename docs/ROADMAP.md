@@ -20,15 +20,9 @@ and only reindex the file when it is saved
 ## Planned
 
 # High Priority
-- ~~Unit tests using GoogleTest~~
-- ~~Benchmark suite for:~~
-  - indexing speed
-  - query latency
-  - prefix search performance
-  - scaling with document count
-- ~~Multithreaded document indexing~~
-- ~~Thread pool for parallel file parsing~~ gave BM_BulkIndexing/1000/iterations:10 , Time = 37669 ms , CPU = 34373 ms
-- ~~Batched Parallel Processing~~           gave BM_BulkIndexing/1000/iterations:10 , Time = 32812 ms , CPU = 29583 ms
+- generation-aware asynchronous incremental persistence system (Incremental index persistence) "Implemented asynchronous incremental index persistence using dirty-file tracking and generation-based stale job invalidation to avoid full-index rewrites and minimize memory overhead."
+  - background serialization worker
+  - stale-job invalidation
 - Serialize index to disk with a fast index reload without rebuilding
 - Cleaning up architecture between engine, search, indexing, and API layers
 

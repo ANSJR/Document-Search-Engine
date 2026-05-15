@@ -6,7 +6,7 @@
 
 [[maybe_unused]]
 static void printDebugShort(const std::unordered_map<std::string,std::unordered_map<std::filesystem::path,std::vector<WordLocation>>>& results, const Indexer& idx, const std::string& query) {
-    std::cout << "\n\nDEBUGGING PRINT Query (" << query << ") :\n";
+    std::cout << "DEBUGGING PRINT Query (" << query << ") :\n";
     for (const auto& [word, docMap] : results) {
         std::cout << "\nWORD: " << word << '\n';
         for (const auto& [file, positions] : docMap) {
@@ -97,14 +97,15 @@ static void printDebugLong(const std::unordered_map<std::string,std::unordered_m
 }
 static void BM_Search(benchmark::State& state)
 {
-    std::filesystem::path path = "data";
-    std::filesystem::path filePath = "data/doc1.txt";
+    std::filesystem::path path = std::filesystem::weakly_canonical("data");
+    std::filesystem::path filePath = std::filesystem::weakly_canonical("data/doc1.txt");
     std::vector<std::filesystem::path> files;
     for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
         if (entry.is_regular_file()) {
-            auto ext = entry.path().extension();
+            auto normalized = std::filesystem::weakly_canonical(entry.path());
+            auto ext = normalized.extension();
             if (ext == ".txt" || ext == ".md") {
-                files.push_back(entry.path());
+                files.push_back(normalized);
             }
         }
     }

@@ -1,0 +1,20 @@
+- Indexes local `.txt` and `.md` files from a directory
+- Tokenizes and normalizes text for efficient search
+- Builds an inverted index with positional metadata
+- Supports ranked retrieval using BM25 ranking model
+- Prefix-based lookup via a Ternary Search Tree (TST)
+- Incremental file indexing and deletion
+- Local HTTP API powered by Crow
+- Exposes a set of HTTP API endpoints (see below)
+- Builds and runs from the command line
+
+- Unit tests using GoogleTest
+- Benchmark suite for:
+  - indexing speed
+  - query latency
+  - prefix search performance
+  - scaling with document count
+- Multithreaded document indexing
+- ~~Thread pool for parallel file parsing~~ gave BM_BulkIndexing/1000/iterations:10 , Time = 37669 ms , CPU = 34373 ms
+- Batched Parallel Processing           gave BM_BulkIndexing/1000/iterations:10 , Time = 32812 ms , CPU = 29583 ms
+- dirty-file tracking
