@@ -18,3 +18,4 @@
 - ~~Thread pool for parallel file parsing~~ gave BM_BulkIndexing/1000/iterations:10 , Time = 37669 ms , CPU = 34373 ms
 - Batched Parallel Processing           gave BM_BulkIndexing/1000/iterations:10 , Time = 32812 ms , CPU = 29583 ms
 - dirty-file tracking
+- background serialization worker

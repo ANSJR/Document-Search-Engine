@@ -11,6 +11,7 @@
 #include "Tokenizer.h"
 #include "TernarySearchTree.h"
 #include "WordLocation.h"
+#include "IndexSerializer.h"
 #include <filesystem>
 
 #include <iostream>
@@ -35,6 +36,7 @@ struct PartialResult {
     LocalFileToTerms localFileToTerms;
 };
 class Indexer {
+friend class IndexSerializer;
 private:
     unsigned long long int totalTokensInIndex = 0;
     std::unordered_map<std::filesystem::path, FileMetadata> fileToTerms;

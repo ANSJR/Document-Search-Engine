@@ -6,13 +6,26 @@
 #include "../include/TernarySearchTree.h"
 #include "../include/Tokenizer.h"
 #include <filesystem>
+#include <future>
+#include <queue>
 
+struct DirtyJob {
+    std::filesystem::path file;
+    uint64_t generation;
+};
 
 class Engine {
 private:
     TernarySearchTree tst;
     Indexer indexer;
-    // Tokenizer tokenizer;
+
+    std::thread serializerWorker;
+    std::queue<DirtyJob> dirtyQueue;
+    std::mutex dirtyMutex;
+    std::condition_variable dirtyCV;
+    bool stopWorker = false;
+
+    void serializerLoop();
 
 public:
     Engine();
@@ -22,5 +35,6 @@ public:
     std::vector<SearchResult> search(const std::string& query) const;
     int getTotalIndexTerms() const;
     int getTotalTreeTerms() const;
+    ~Engine();
 };
 #endif

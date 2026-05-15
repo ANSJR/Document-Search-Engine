@@ -1,21 +1,35 @@
 
 #include "../include/Engine.h"
 
-Engine::Engine() {}
-void Engine::indexFiles(const std::vector<std::filesystem::path>& files) {
-    indexer.buildIndex(files, tst);
-    // const auto& index = indexer.getIndex();
-    // for (const auto& [word, docMap] : index) {
-    //     std::cout << "WORD: " << word << "\n";
+Engine::Engine() {
+    serializerWorker = std::thread(&Engine::serializerLoop, this);
+}
+void Engine::serializerLoop() {
+    while (true) {
+        DirtyJob job;
+        {
+            std::unique_lock lock(dirtyMutex);
+            dirtyCV.wait(lock, [&] {return stopWorker || !dirtyQueue.empty();}); // engine is shutting down or items in queue
+            if (stopWorker && dirtyQueue.empty()) break;
+            job = dirtyQueue.front();
+            dirtyQueue.pop();
+        }
 
-    //     for (const auto& [file, positions] : docMap) {
-    //         std::cout << "  FILE: " << file << " -> ";
-    //         for (const auto& pos : positions) {
-    //             std::cout << "(" << pos.tokenPos << ", " << pos.byteOffset << ") ";
-    //         }
-    //         std::cout << "\n";
-    //     }
-    // }
+        if (job.generation != indexer.getFileGen(job.file)) continue;
+        IndexSerializer::save(indexer, job.file);
+    }
+}
+void Engine::indexFiles(const std::vector<std::filesystem::path>& files) {
+    stopWorker = true;
+    indexer.buildIndex(files, tst);
+    stopWorker = false;
+    {
+        std::lock_guard lock(dirtyMutex);
+        for (const auto& file : files) {
+            dirtyQueue.push({file, indexer.getFileGen(file)});
+        }
+    }
+    dirtyCV.notify_one();
 }
 void Engine::indexFile(const std::filesystem::path& filePath) {
     indexer.buildIndex(filePath, tst);
@@ -72,7 +86,17 @@ int Engine::getTotalIndexTerms() const {
 int Engine::getTotalTreeTerms() const {
     return tst.countWords();
 }
+Engine::~Engine() {
+    {
+        std::lock_guard lock(dirtyMutex);
+        stopWorker = true;
+    }
 
+    dirtyCV.notify_one();
+    if (serializerWorker.joinable()) {
+        serializerWorker.join();
+    }
+}
 
 void printSearchResults(const std::vector<SearchResult>& results) {
     if (results.empty()) {
