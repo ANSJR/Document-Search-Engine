@@ -85,3 +85,96 @@ bool IndexSerializer::save(const Indexer& indexer, const std::filesystem::path& 
     assert(writtenTerms == totalTerms);
     return out.good();
 }
+bool IndexSerializer::load(Indexer& indexer, TernarySearchTree& tst, const std::filesystem::path& dataFolder) {
+    try {
+        std::vector<std::filesystem::path> files;
+        // collect all .bin files
+        for (const auto& entry : std::filesystem::recursive_directory_iterator(dataFolder)) {
+            if (entry.is_regular_file()) {
+                auto normalized = std::filesystem::weakly_canonical(entry.path());
+                auto ext = normalized.extension();
+                if (ext == ".bin") {
+                    files.push_back(normalized);
+                }
+            }
+        }
+
+        // nothing to load
+        if (files.empty()) {
+            return true;
+        }
+
+        // parallel load + merge
+        loadIndex(indexer, tst, files);
+
+        return true;
+    }
+    catch (const std::exception& e) {
+
+        std::cerr << "Load failed: "
+                  << e.what()
+                  << '\n';
+
+        return false;
+    }
+}
+
+PartialResult IndexSerializer::partialLoadIndexThreadWorkers(const std::filesystem::path& filePath) {
+    std::ifstream in(filePath, std::ios::binary);
+    if (!in) throw std::runtime_error("Failed reading term");
+    PartialResult result;
+
+    uint64_t pathLen = readBinary<uint64_t>(in);
+    std::string pathStr(pathLen, '\0');
+    in.read(pathStr.data(), pathLen);
+    if (!in) throw std::runtime_error("Failed reading path");
+    std::filesystem::path originalPath = pathStr;
+    result.filePath = originalPath;
+
+    result.localFileToTerms.tokenCount = readBinary<uint64_t>(in);
+    result.localFileToTerms.generation = readBinary<uint64_t>(in);
+    uint64_t totalTerms = readBinary<uint64_t>(in);
+
+    for (uint64_t i = 0; i < totalTerms; i++) {
+        uint64_t termLen = readBinary<uint64_t>(in);
+
+        std::string term(termLen, '\0');
+        in.read(term.data(), termLen);
+        if (!in) throw std::runtime_error("Failed reading term");
+        result.localFileToTerms.uniqueTerms.insert(term);
+
+        uint64_t locCount = readBinary<uint64_t>(in);
+        std::vector<WordLocation> locations(locCount);
+        in.read(reinterpret_cast<char*>(locations.data()), locCount * sizeof(WordLocation));
+        if (!in) throw std::runtime_error("Failed reading term");
+        result.localIndex[term] = std::move(locations);
+    }
+    return result;
+
+}
+void IndexSerializer::mergePartialLoadIndexThreadWorkers(Indexer& indexer, PartialResult&& partial, TernarySearchTree& tst) {
+    
+    for (auto& [token, location] : partial.localIndex) {
+        auto [it, inserted] = indexer.index.try_emplace(token);
+        if (inserted) {tst.insert(token);}
+        // it->second is unordered_map<path, vector<WordLocation>>
+        it->second[partial.filePath] = std::move(location);
+    }
+    indexer.fileToTerms[partial.filePath] = std::move(partial.localFileToTerms);
+    indexer.totalTokensInIndex += indexer.fileToTerms[partial.filePath].tokenCount;
+}
+void IndexSerializer::loadIndex(Indexer& indexer, TernarySearchTree& tst, const std::vector<std::filesystem::path>& files) {
+    const size_t maxThreads = std::max(1u, std::thread::hardware_concurrency());
+
+    for (size_t i = 0; i < files.size(); i += maxThreads) {
+        std::vector<std::future<PartialResult>> futures;
+        size_t end = std::min(i + maxThreads, files.size());
+        futures.reserve(end - i);
+        for (size_t j = i; j < end; j++) {
+            futures.push_back(std::async(std::launch::async, &IndexSerializer::partialLoadIndexThreadWorkers, files[j]));
+        }
+        for (auto& future : futures) {
+            IndexSerializer::mergePartialLoadIndexThreadWorkers(indexer, std::move(future.get()),tst);
+        }
+    }
+}

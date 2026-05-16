@@ -22,6 +22,7 @@ and only reindex the file when it is saved
 # High Priority
 - generation-aware asynchronous incremental persistence system (Incremental index persistence) "Implemented asynchronous incremental index persistence using dirty-file tracking and generation-based stale job invalidation to avoid full-index rewrites and minimize memory overhead."
   - stale-job invalidation
+- check if IndexSerializer shuts off if indexing of a new file starts
 - Serialize index to disk with a fast index reload without rebuilding
 - Cleaning up architecture between engine, search, indexing, and API layers
 

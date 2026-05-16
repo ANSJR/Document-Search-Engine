@@ -96,7 +96,7 @@ test: $(TEST_OUT)
 	./$(TEST_OUT)
 
 bench: $(BENCH_OUT)
-	./$(BENCH_OUT)
+	./$(BENCH_OUT) --benchmark_filter=$(FILTER)
 
 debugger: $(OUT)
 ifeq ($(OS),Windows_NT)

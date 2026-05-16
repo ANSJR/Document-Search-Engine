@@ -1,7 +1,7 @@
 #include <benchmark/benchmark.h>
 #include "Indexer.h"
 
-
+// make bench FILTER=BM_SingleFileIndexing
 static void BM_SingleFileIndexing(benchmark::State& state)
 {
     std::filesystem::path file = "benchmarks/BenchDocs/BBcase1.txt";
