@@ -19,6 +19,7 @@ static void BM_SingleFileIndexing(benchmark::State& state)
 BENCHMARK(BM_SingleFileIndexing)
     // ->MinTime(5.0)
     ->Unit(benchmark::kMillisecond);
+
 //
 // Bulk Index Benchmark
 //
@@ -55,7 +56,7 @@ static void BM_BulkIndexing(benchmark::State& state) {
 BENCHMARK(BM_BulkIndexing)
     ->Arg(1)
     ->Arg(10)
-    ->Arg(100)
+    // ->Arg(100)
     // ->Iterations(10)
     // ->Arg(getFiles().size())
     ->MinTime(5.0)

@@ -2,11 +2,11 @@
 #define WORDLOCATION_H
 #include <cstddef>
 #include <fstream>
-
+#include <cstdint>
 
 struct WordLocation {
-    size_t tokenPos;
-    std::streampos byteOffset;
+    uint64_t  tokenPos;
+    uint64_t  byteOffset;
 };
 
 #endif

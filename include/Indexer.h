@@ -12,6 +12,7 @@
 #include "TernarySearchTree.h"
 #include "WordLocation.h"
 #include "IndexSerializer.h"
+#include "SharedTypes.h"
 #include <filesystem>
 
 #include <iostream>
@@ -23,18 +24,7 @@
 #include <vector>
 #include <string>
 // std::pair<size_t,std::unordered_set<std::string>>
-struct FileMetadata {
-    size_t tokenCount;
-    std::unordered_set<std::string> uniqueTerms;
-    uint64_t generation = 0;
-};
-using LocalIndex = std::unordered_map<std::string,std::vector<WordLocation>>;
-using LocalFileToTerms = FileMetadata;
-struct PartialResult {
-    std::filesystem::path filePath;
-    LocalIndex localIndex;
-    LocalFileToTerms localFileToTerms;
-};
+
 class Indexer {
 friend class IndexSerializer;
 private:

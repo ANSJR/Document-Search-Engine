@@ -16,13 +16,14 @@ void Engine::serializerLoop() {
         }
 
         if (job.generation != indexer.getFileGen(job.file)) continue;
-        IndexSerializer::save(indexer, job.file);
+        std::cout << "RUNNING CLEANER"; 
+        std::filesystem::path output = "indexBin/" + job.file.filename().string() + ".bin";
+        auto normalized = std::filesystem::weakly_canonical(output);
+        IndexSerializer::save(indexer, job.file, normalized);
     }
 }
 void Engine::indexFiles(const std::vector<std::filesystem::path>& files) {
-    stopWorker = true;
     indexer.buildIndex(files, tst);
-    stopWorker = false;
     {
         std::lock_guard lock(dirtyMutex);
         for (const auto& file : files) {

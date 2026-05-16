@@ -50,13 +50,13 @@ void Indexer::mergePartialIndexThreadWorkers(PartialResult&& partial, TernarySea
     totalTokensInIndex += fileToTerms[partial.filePath].tokenCount;
 }
 void Indexer::buildIndex(const std::vector<std::filesystem::path>& files, TernarySearchTree& tst) {
-    const size_t maxThreads = std::thread::hardware_concurrency();
+    const size_t maxThreads = std::max(1u, std::thread::hardware_concurrency());
 
     for (size_t i = 0; i < files.size(); i += maxThreads) {
         std::vector<std::future<PartialResult>> futures;
         size_t end = std::min(i + maxThreads, files.size());
+        futures.reserve(end - i);
         for (size_t j = i; j < end; j++) {
-            futures.reserve(end - i);
             futures.push_back(std::async(std::launch::async, &Indexer::partialIndexThreadWorkers, this, files[j]));
         }
         for (auto& future : futures) {

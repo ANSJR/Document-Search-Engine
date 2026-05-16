@@ -6,6 +6,7 @@
  */
 
 #include "../include/Tokenizer.h"
+#include <cstdint>
 
 std::vector<std::string> Tokenizer::simpleTokenize(const std::string& text) {
     std::vector<std::string> tokens;
@@ -51,10 +52,11 @@ std::size_t Tokenizer::getTotalTokens(const std::string& text) {
 std::vector<std::pair<std::string, WordLocation>> Tokenizer::tokenize(const std::string& text) {
     std::vector<std::pair<std::string, WordLocation>> tokens;
     std::string current;
-    std::streampos wordStart = -1;
-    size_t tokenPos = 0;
+    uint64_t wordStart = 0;
+    uint64_t tokenPos = 0;
+    bool insideWord = false;
 
-    for (size_t i = 0; i < text.size(); i++) {
+    for (uint64_t i = 0; i < text.size(); i++) {
         char c = text[i];
         size_t consumedBytes = 1;
         bool isTokenChar = false;
@@ -70,16 +72,17 @@ std::vector<std::pair<std::string, WordLocation>> Tokenizer::tokenize(const std:
             isTokenChar = true;
         }
         if (isTokenChar) {
-            if (current.empty()) {
-                wordStart = static_cast<std::streampos>(i);
+            if (!insideWord) {
+                wordStart = i;
+                insideWord = true;
             }
             current += c;
             if (consumedBytes == 3) i += 2;
         }
-        else if (!current.empty()) {
+        else if (insideWord) {
             tokens.push_back({current, WordLocation{tokenPos, wordStart}});
             current.clear();
-            wordStart = -1;
+            insideWord = false;
             tokenPos++;
         }
     }
