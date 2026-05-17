@@ -5,10 +5,15 @@
 #include "../include/Searcher.h"
 #include "../include/TernarySearchTree.h"
 #include "../include/Tokenizer.h"
+#include "crow.h"
 #include <filesystem>
 #include <future>
 #include <queue>
+#include <shared_mutex>
 
+struct EngineConfig {
+    std::filesystem::path indexBin = "indexBin/";
+};
 struct DirtyJob {
     std::filesystem::path file;
     uint64_t generation;
@@ -16,12 +21,15 @@ struct DirtyJob {
 
 class Engine {
 private:
+    EngineConfig config;
     TernarySearchTree tst;
     Indexer indexer;
 
     std::thread serializerWorker;
     std::queue<DirtyJob> dirtyQueue;
     std::mutex dirtyMutex;
+    std::mutex pathMutex;
+    mutable std::shared_mutex engineMutex;
     std::condition_variable dirtyCV;
     bool stopWorker = false;
 
@@ -29,9 +37,13 @@ private:
 
 public:
     Engine();
+    bool saveConfig(const std::filesystem::path& configPath) const;
+    bool loadConfig(const std::filesystem::path& configPath);
+    void loadSerializedIndex();
     void indexFiles(const std::vector<std::filesystem::path>& files);
     void indexFile(const std::filesystem::path& filePath);
     void deleteTermFromFile(const std::filesystem::path& filePath);
+    bool modifyIndexBinPath(const std::filesystem::path& filePath);
     std::vector<SearchResult> search(const std::string& query) const;
     int getTotalIndexTerms() const;
     int getTotalTreeTerms() const;

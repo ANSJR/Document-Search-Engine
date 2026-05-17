@@ -86,6 +86,7 @@ bool IndexSerializer::save(const Indexer& indexer, const std::filesystem::path& 
     return out.good();
 }
 bool IndexSerializer::load(Indexer& indexer, TernarySearchTree& tst, const std::filesystem::path& dataFolder) {
+    std::cout << "LOADING INDEXBIN\n";
     try {
         std::vector<std::filesystem::path> files;
         // collect all .bin files
@@ -98,23 +99,13 @@ bool IndexSerializer::load(Indexer& indexer, TernarySearchTree& tst, const std::
                 }
             }
         }
+        if (files.empty()) return true;
 
-        // nothing to load
-        if (files.empty()) {
-            return true;
-        }
-
-        // parallel load + merge
         loadIndex(indexer, tst, files);
-
         return true;
     }
     catch (const std::exception& e) {
-
-        std::cerr << "Load failed: "
-                  << e.what()
-                  << '\n';
-
+        std::cerr << "Load failed: " << e.what() << '\n';
         return false;
     }
 }

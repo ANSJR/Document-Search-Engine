@@ -21,16 +21,30 @@ void ApiServer::run(int port) {
         }
         return crow::response(200, buildSearchResponse(q));
     });
-    CROW_ROUTE(app, "/initialIndex").methods("POST"_method)([this](const crow::request& req) {
-        const char* path = req.url_params.get("path");
-        if (!path) {
-            return crow::response(400, "{\"error\":\"missing query parameter 'path'\"}");
+    CROW_ROUTE(app, "/index/build").methods("POST"_method)([this](const crow::request& req) {
+        auto body = crow::json::load(req.body);
+        if (!body) {
+            return crow::response(400,R"({"error":"invalid json"})"
+            );
         }
-        bool ok = buildInitialIndex(path);
+        if (!body["documentPath"]) {
+            return crow::response(400,R"({"error":"missing documentPath"})");
+        }
+
+        std::string documentPath = body["documentPath"].s();
+        if (body.has("indexBin")) {
+            std::string indexBin = body["indexBin"].s();
+            bool ok = engine.modifyIndexBinPath(indexBin);
+            
+            if (!ok) {return crow::response(400, R"({"error":"failed to update indexBin"})");}
+            engine.saveConfig("config/config.json");
+        }
+        bool ok = buildInitialIndex(documentPath);
+
         if (!ok) {
-            return crow::response(400, "{\"status\":\"failed to build index\"}");
+            return crow::response(400, R"({"status":"failed to build index"})");
         }
-        return crow::response(200, "{\"status\":\"index built\"}");
+        return crow::response(200, R"({"status":"index built"})");
     });
     CROW_ROUTE(app, "/index/file").methods("POST"_method)([this](const crow::request& req) {
         const char* path = req.url_params.get("path");
@@ -54,7 +68,17 @@ void ApiServer::run(int port) {
         }
         return crow::response(200, "{\"status\":\"file deleted\"}");
     });
-
+    CROW_ROUTE(app, "/config/indexBin").methods("POST"_method)([this](const crow::request& req) {
+        const char* path = req.url_params.get("path");
+        if (!path) {
+            return crow::response(400, "{\"error\":\"missing query parameter 'path'\"}");
+        }
+        bool ok = assignIndexBin(path);
+        if (!ok) {
+            return crow::response(400, "{\"status\":\"failed to build index\"}");
+        }
+        return crow::response(200, "{\"status\":\"index built\"}");
+    });
     app.port(port).multithreaded().run();
 }
 
@@ -109,6 +133,10 @@ bool ApiServer::deleteFileFromIndex(const std::string& filePath) {
 
     engine.deleteTermFromFile(path);
     return true;
+}
+bool ApiServer::assignIndexBin(const std::string& filePath) {
+    std::filesystem::path path(filePath);
+    return engine.modifyIndexBinPath(path);
 }
 std::string ApiServer::buildSearchResponse(const std::string& query) const {
     std::vector<SearchResult> results = engine.search(query);

@@ -24,6 +24,7 @@ private:
     std::string buildSearchResponse(const std::string& query) const;
     std::string buildIndexHealthResponse() const;
     std::string escapeJson(const std::string& text) const;
+    bool assignIndexBin(const std::string& path);
 };
 
 #endif
