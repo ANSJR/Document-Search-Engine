@@ -134,7 +134,13 @@ bool Engine::modifyIndexBinPath(const std::filesystem::path& newPath) {
             if (entry.path().extension() != ".bin") continue;
 
             std::filesystem::path destination = normalized / entry.path().filename();
-            std::filesystem::rename(entry.path(), destination);
+            try {
+                std::filesystem::rename(entry.path(), destination);
+            }
+            catch (const std::filesystem::filesystem_error&) {
+                std::filesystem::copy_file(entry.path(), destination, std::filesystem::copy_options::overwrite_existing);
+                std::filesystem::remove(entry.path());
+            }
         }
 
         {

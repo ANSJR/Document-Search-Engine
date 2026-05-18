@@ -19,3 +19,4 @@
 - Batched Parallel Processing           gave BM_BulkIndexing/1000/iterations:10 , Time = 32812 ms , CPU = 29583 ms
 - dirty-file tracking
 - background serialization worker
+- generation-aware asynchronous incremental persistence system (Incremental index persistence) "Implemented asynchronous incremental index persistence using dirty-file tracking and generation-based stale job invalidation to avoid full-index rewrites and minimize memory overhead."
