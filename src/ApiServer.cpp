@@ -11,7 +11,7 @@ void ApiServer::run(int port) {
     CROW_ROUTE(app, "/health")([this]() {
         return crow::response(200, buildHealthResponse());
     });
-    CROW_ROUTE(app, "/indexHealth")([this]() {
+    CROW_ROUTE(app, "/index/Health")([this]() {
         return crow::response(200, buildIndexHealthResponse());
     });
     CROW_ROUTE(app, "/search")([this](const crow::request& req) {
@@ -47,15 +47,19 @@ void ApiServer::run(int port) {
         return crow::response(200, R"({"status":"index built"})");
     });
     CROW_ROUTE(app, "/index/file").methods("POST"_method)([this](const crow::request& req) {
-        const char* path = req.url_params.get("path");
-        if (!path) {
-            return crow::response(400, "{\"error\":\"missing query parameter 'path'\"}");
+        auto body = crow::json::load(req.body);
+        if (!body) {
+            return crow::response(400, R"({"error":"invalid json"})");
         }
+        if (!body["path"]) {
+            return crow::response(400, R"({"error":"missing path"})");
+        }
+        std::string path = body["path"].s();
         bool ok = addFileToIndex(path);
         if (!ok) {
-            return crow::response(400, "{\"status\":\"failed add file to index\"}");
+            return crow::response(400, R"({"status":"failed to add file to index"})");
         }
-        return crow::response(200, "{\"status\":\"file added/reindexed\"}");
+        return crow::response(200, R"({"status":"file added/reindexed"})");
     });
     CROW_ROUTE(app, "/index/file").methods("DELETE"_method)([this](const crow::request& req) {
         const char* path = req.url_params.get("path");
@@ -69,15 +73,19 @@ void ApiServer::run(int port) {
         return crow::response(200, "{\"status\":\"file deleted\"}");
     });
     CROW_ROUTE(app, "/config/indexBin").methods("POST"_method)([this](const crow::request& req) {
-        const char* path = req.url_params.get("path");
-        if (!path) {
-            return crow::response(400, "{\"error\":\"missing query parameter 'path'\"}");
+        auto body = crow::json::load(req.body);
+        if (!body) {
+            return crow::response(400, R"({"error":"invalid json"})");
         }
+        if (!body["path"]) {
+            return crow::response(400, R"({"error":"missing path"})");
+        }
+        std::string path = body["path"].s();
         bool ok = assignIndexBin(path);
         if (!ok) {
-            return crow::response(400, "{\"status\":\"failed to build index\"}");
+            return crow::response(400, R"({"status":"failed to update indexBin"})");
         }
-        return crow::response(200, "{\"status\":\"index built\"}");
+        return crow::response(200, R"({"status":"indexBin updated"})");
     });
     app.port(port).multithreaded().run();
 }
@@ -131,7 +139,7 @@ bool ApiServer::deleteFileFromIndex(const std::string& filePath) {
         return false;
     }
 
-    engine.deleteTermFromFile(path);
+    engine.deleteFileFromIndex(path);
     return true;
 }
 bool ApiServer::assignIndexBin(const std::string& filePath) {

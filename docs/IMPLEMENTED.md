@@ -20,3 +20,5 @@
 - dirty-file tracking
 - background serialization worker
 - generation-aware asynchronous incremental persistence system (Incremental index persistence) "Implemented asynchronous incremental index persistence using dirty-file tracking and generation-based stale job invalidation to avoid full-index rewrites and minimize memory overhead."
+- if file deleted from index delete from bin
+- Convert post and delete file to json request

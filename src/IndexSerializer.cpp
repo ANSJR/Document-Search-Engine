@@ -169,3 +169,19 @@ void IndexSerializer::loadIndex(Indexer& indexer, TernarySearchTree& tst, const 
         }
     }
 }
+bool IndexSerializer::deleteFile(const std::filesystem::path& sourceFile, const std::filesystem::path& dataFolder) {
+    std::filesystem::path binPath = dataFolder / (sourceFile.filename().string() + ".bin");
+    binPath = binPath.lexically_normal();
+
+    std::error_code ec;
+    bool removed = std::filesystem::remove(binPath, ec);
+
+    if (ec) {
+        std::cerr << "Failed to delete bin file: " << binPath << " — " << ec.message() << '\n';
+        return false;
+    }
+    if (!removed) {
+        std::cerr << "Bin file not found (already gone?): " << binPath << '\n';
+    }
+    return removed;
+}

@@ -186,16 +186,27 @@ Removes a file and cleans up unused terms from the index.
 ### Example
 ```bash
 curl http://localhost:2323/health
+
 curl -X POST http://localhost:2323/index/build -H "Content-Type: application/json" -d "{\"documentPath\":\"data\"}"
+
 curl -X POST http://localhost:2323/index/build -H "Content-Type: application/json" -d "{\"documentPath\":\"data\",\"indexBin\":\"indexTestBin\"}"
-curl -X POST "http://localhost:2323/config/indexBin?path=indexBin"
-curl http://localhost:2323/indexHealth
+
+curl -X POST http://localhost:2323/config/indexBin \-H "Content-Type: application/json" \-d "{\"path\":\"indexBin\"}"
+
+curl http://localhost:2323/index/Health
+
 curl "http://localhost:2323/search?q=birthday"
-curl -X POST "http://localhost:2323/index/file?path=dataTemp/BBcase.txt"
-curl http://localhost:2323/indexHealth
+
+curl -X POST http://localhost:2323/index/file \-H "Content-Type: application/json" \-d "{\"path\":\"dataTemp/BBcase.txt\"}"
+
+curl http://localhost:2323/index/Health
+
 curl "http://localhost:2323/search?q=birthday"
+
 curl -X DELETE "http://localhost:2323/index/file?path=dataTemp/BBcase.txt"
-curl http://localhost:2323/indexHealth
+
+curl http://localhost:2323/index/Health
+
 curl -X POST "http://localhost:2323/initialIndex?path=GutenbergText"
 ```
 {

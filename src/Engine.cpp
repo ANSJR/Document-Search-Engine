@@ -159,9 +159,10 @@ bool Engine::modifyIndexBinPath(const std::filesystem::path& newPath) {
         return false;
     }
 }
-void Engine::deleteTermFromFile(const std::filesystem::path& filePath) {
+void Engine::deleteFileFromIndex(const std::filesystem::path& filePath) {
     std::unique_lock lock(engineMutex);
     indexer.removeFileFromIndex(filePath, tst);
+    IndexSerializer::deleteFile(filePath, config.indexBin);
 }
 std::vector<SearchResult> Engine::search(const std::string& query) const {
     std::shared_lock lock(engineMutex);

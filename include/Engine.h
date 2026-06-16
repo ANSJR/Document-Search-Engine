@@ -29,7 +29,8 @@ private:
     std::queue<DirtyJob> dirtyQueue;
     std::mutex dirtyMutex;
     std::mutex pathMutex;
-    mutable std::shared_mutex engineMutex;
+    // engineMutex is a reader/writer lock protecting shared index structures from concurrent search, indexing, and serialization access.
+    mutable std::shared_mutex engineMutex; 
     std::condition_variable dirtyCV;
     bool stopWorker = false;
 
@@ -42,7 +43,7 @@ public:
     void loadSerializedIndex();
     void indexFiles(const std::vector<std::filesystem::path>& files);
     void indexFile(const std::filesystem::path& filePath);
-    void deleteTermFromFile(const std::filesystem::path& filePath);
+    void deleteFileFromIndex(const std::filesystem::path& filePath);
     bool modifyIndexBinPath(const std::filesystem::path& filePath);
     std::vector<SearchResult> search(const std::string& query) const;
     int getTotalIndexTerms() const;

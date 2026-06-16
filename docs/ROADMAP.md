@@ -20,10 +20,6 @@ and only reindex the file when it is saved
 ## Planned
 
 # High Priority
-- if file deleted from index delete from bin
-- std::filesystem::rename(...) fails across drives
-- Convert post and delete file to json request
-- Cleaning up architecture between engine, search, indexing, and API layers
 
 
 # Mid Priority
@@ -34,6 +30,7 @@ and only reindex the file when it is saved
 - API pagination
 - Structured JSON logging
 - Dockerized deployment
+- Cleaning up architecture between engine, search, indexing, and API layers
 
 # Low Priority
 - Snippet/context extraction via byte offsets
