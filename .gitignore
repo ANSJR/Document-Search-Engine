@@ -15,3 +15,6 @@ benchmarks/BenchDocs
 indexBin/
 indexTestBin/
 indexTestBin2/
+LoadSerializedIndexBin/
+SingleFileIndexingBin/
+BulkIndexingBin/

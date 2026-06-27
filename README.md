@@ -60,7 +60,6 @@ The search engine is divided into several core components:
 - C++ concurrency: `std::thread`, `std::async` / `std::future`, `std::shared_mutex`, `std::condition_variable`
 - Custom binary index serialization (per-file segments)
 - Google Benchmark (performance benchmarking)
-- GoogleTest (unit testing)
 
 
 ### Features
@@ -282,28 +281,50 @@ repeat termCount times:
 
 ## Benchmarks
 
-A benchmark suite (built on Google Benchmark) is included to track performance and
-catch regressions. It covers:
+A benchmark suite (built on Google Benchmark) is included to measure the
+performance of the core components of the search engine and detect regressions.
 
-- indexing speed (bulk indexing throughput)
-- query latency
-- prefix search performance
-- scaling with document count
+The current benchmark suite includes:
 
-Build and run the benchmarks:
+| Benchmark | Description |
+|-----------|-------------|
+| `BM_LoadSerializedIndex` | Measures loading a serialized index from disk into memory. |
+| `BM_ReadText` | Measures raw text file reading performance. |
+| `BM_Tokenize` | Measures tokenizer throughput. |
+| `BM_Search` | Measures query latency on an in-memory index. |
+| `BM_SingleFileIndexingNoSerialization` | Measures indexing a single document. |
+| `BM_SingleFileIndexingWithSerialization` | Measures indexing and serializing a single document. |
+| `BM_BulkIndexingNoSerialization` | Measures bulk indexing performance. |
+| `BM_BulkIndexingWithSerialization` | Measures bulk indexing followed by serialization. |
+
+Run the complete benchmark suite:
 
 ```bash
-make runBenchmarks
+make bench
+```
+
+Run an individual benchmark:
+
+```bash
+make bench FILTER=BM_Search
+```
+
+or
+
+```bash
 make bench FILTER=BM_BulkIndexing
 ```
 
-`FILTER` is passed through to `--benchmark_filter`, so you can run a single benchmark
-or a regex group. Example result:
+`FILTER` is passed directly to Google Benchmark's `--benchmark_filter`
+argument, allowing individual benchmarks or regular expression groups to
+be executed.
 
-```
-BM_BulkIndexing/1000/iterations:10    Time = 32812 ms    CPU = 29583 ms
-```
+Example output:
 
+```text
+BM_BulkIndexingNoSerialization/100     Time = 7229 ms    CPU = 4539 ms
+BM_LoadSerializedIndex                 Time = 3687 ms    CPU = 3484 ms
+```
 
 ## Quick Start
 
@@ -319,7 +340,7 @@ http://localhost:2323
 ```bash
 make                       # build the search engine (release flags)
 make run                   # build and run the server
-make test                  # build and run unit tests (GoogleTest)
+make test                  # build and run unit tests (GoogleTest) (NOT YET IMPLEMENTED)
 make bench FILTER=<name>   # build and run benchmarks (Google Benchmark)
 make release               # clean rebuild with release flags (-O3)
 make debug                 # clean rebuild with debug flags (-O0 -g)

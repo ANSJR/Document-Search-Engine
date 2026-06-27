@@ -6,7 +6,7 @@
 static void BM_Tokenize(benchmark::State& state)
 {
     Indexer idx;
-    std::string text = idx.readText("benchmarks/BenchDocs/BBcase1.txt");
+    std::string text = idx.readText("benchmarks/WarAndPeace.txt");
     Tokenizer tokenizer;
 
     for (auto _ : state) {

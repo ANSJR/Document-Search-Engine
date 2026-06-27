@@ -97,25 +97,26 @@ static void printDebugLong(const std::unordered_map<std::string,std::unordered_m
 }
 static void BM_Search(benchmark::State& state)
 {
-    std::filesystem::path path = std::filesystem::weakly_canonical("data");
-    std::filesystem::path filePath = std::filesystem::weakly_canonical("data/doc1.txt");
-    std::vector<std::filesystem::path> files;
-    for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
-        if (entry.is_regular_file()) {
-            auto normalized = std::filesystem::weakly_canonical(entry.path());
-            auto ext = normalized.extension();
-            if (ext == ".txt" || ext == ".md") {
-                files.push_back(normalized);
+    static const auto files = [] {
+        std::vector<std::filesystem::path> files;
+        std::filesystem::path path = std::filesystem::weakly_canonical("data");
+
+        for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
+            if (entry.is_regular_file()) {
+                auto normalized = std::filesystem::weakly_canonical(entry.path());
+                auto ext = normalized.extension();
+                if (ext == ".txt" || ext == ".md")
+                    files.push_back(normalized);
             }
         }
-    }
+        return files;
+    }();
     static Indexer idx;
     static TernarySearchTree tst;
     static bool initialized = false;
 
     if (!initialized) {
         idx.buildIndex(files, tst);
-        idx.buildIndex(filePath, tst);
         initialized = true;
     }
 
@@ -136,4 +137,5 @@ static void BM_Search(benchmark::State& state)
 }
 
 BENCHMARK(BM_Search)
-    ->Unit(benchmark::kMillisecond);
+    // ->Unit(benchmark::kMillisecond);
+    ->Unit(benchmark::kMicrosecond);

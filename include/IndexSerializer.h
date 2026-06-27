@@ -16,10 +16,10 @@ private:
     static void loadIndex(Indexer& indexer, TernarySearchTree& tst, const std::vector<std::filesystem::path>& files);
 
 public:
-    static bool save(const Indexer& indexer, const std::filesystem::path& currFile, const std::filesystem::path& dataFolder);
+    static bool save(const Indexer& indexer, const std::filesystem::path& currFile, const std::filesystem::path& outputFile);
 
-    static bool load(Indexer& indexer, TernarySearchTree& tst, const std::filesystem::path& dataFolder);
-    static bool deleteFile(const std::filesystem::path& sourceFile, const std::filesystem::path& dataFolder);
+    static bool load(Indexer& indexer, TernarySearchTree& tst, const std::filesystem::path& outputFile);
+    static bool deleteFile(const std::filesystem::path& sourceFile, const std::filesystem::path& outputFile);
 };
 
 #endif

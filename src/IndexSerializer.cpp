@@ -35,8 +35,8 @@ repeat:
     [WordLocation count] 2
     [WordLocation array] 
 */
-bool IndexSerializer::save(const Indexer& indexer, const std::filesystem::path& currFile, const std::filesystem::path& dataFolder) {
-    std::ofstream out(dataFolder, std::ios::binary);
+bool IndexSerializer::save(const Indexer& indexer, const std::filesystem::path& currFile, const std::filesystem::path& outputFile) {
+    std::ofstream out(outputFile, std::ios::binary);
     if (!out) {
         return false;
     }
@@ -85,12 +85,12 @@ bool IndexSerializer::save(const Indexer& indexer, const std::filesystem::path& 
     assert(writtenTerms == totalTerms);
     return out.good();
 }
-bool IndexSerializer::load(Indexer& indexer, TernarySearchTree& tst, const std::filesystem::path& dataFolder) {
-    std::cout << "LOADING INDEXBIN\n";
+bool IndexSerializer::load(Indexer& indexer, TernarySearchTree& tst, const std::filesystem::path& outputFile) {
+    // std::cout << "LOADING INDEXBIN\n";
     try {
         std::vector<std::filesystem::path> files;
         // collect all .bin files
-        for (const auto& entry : std::filesystem::recursive_directory_iterator(dataFolder)) {
+        for (const auto& entry : std::filesystem::recursive_directory_iterator(outputFile)) {
             if (entry.is_regular_file()) {
                 auto normalized = std::filesystem::weakly_canonical(entry.path());
                 auto ext = normalized.extension();
@@ -169,8 +169,8 @@ void IndexSerializer::loadIndex(Indexer& indexer, TernarySearchTree& tst, const 
         }
     }
 }
-bool IndexSerializer::deleteFile(const std::filesystem::path& sourceFile, const std::filesystem::path& dataFolder) {
-    std::filesystem::path binPath = dataFolder / (sourceFile.filename().string() + ".bin");
+bool IndexSerializer::deleteFile(const std::filesystem::path& sourceFile, const std::filesystem::path& outputFile) {
+    std::filesystem::path binPath = outputFile / (sourceFile.filename().string() + ".bin");
     binPath = binPath.lexically_normal();
 
     std::error_code ec;
