@@ -17,6 +17,13 @@ ifeq ($(OS),Windows_NT)
     LDFLAGS += -lws2_32 -lmswsock
 endif
 
+# Homebrew headers/libs (Apple Silicon: /opt/homebrew, Intel: /usr/local)
+BREW := $(shell brew --prefix 2>/dev/null)
+ifneq ($(BREW),)
+    DEBUG_FLAGS   += -I$(BREW)/include
+    RELEASE_FLAGS += -I$(BREW)/include
+    LDFLAGS       += -L$(BREW)/lib
+endif
 # =========================
 # Source Files
 # =========================

@@ -8,6 +8,7 @@
 
 # macOS debug bundles
 *.dSYM/
+.DS_Store
 
 # Ignore all data folders
 GutenbergText/
