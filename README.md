@@ -340,7 +340,7 @@ http://localhost:2323
 ```bash
 make                       # build the search engine (release flags)
 make run                   # build and run the server
-make test                  # build and run unit tests (GoogleTest) (NOT YET IMPLEMENTED)
+make test                  # build and run unit tests (GoogleTest)
 make bench FILTER=<name>   # build and run benchmarks (Google Benchmark)
 make release               # clean rebuild with release flags (-O3)
 make debug                 # clean rebuild with debug flags (-O0 -g)
