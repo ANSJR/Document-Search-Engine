@@ -4,6 +4,7 @@
 #include "../include/TernarySearchTree.h"
 #include <future>
 #include <stdexcept>
+#include <cstring>
 
 static_assert(std::is_trivially_copyable_v<WordLocation>);
 template<typename T>
@@ -110,39 +111,82 @@ bool IndexSerializer::load(Indexer& indexer, TernarySearchTree& tst, const std::
     }
 }
 
+// BinReader: walks through a block of bytes that's already in memory
+// and pulls values out of it, one after another, in order.
+struct BinaryReader {
+    const char* cur;
+    const char* end;
+
+    BinaryReader(const std::string& buf) : cur(buf.data()), end(buf.data() + buf.size()) {}
+
+    template <typename T>
+    T read() {
+        // Compile-time check: only allow "plain data" types like int, uint64_t, or simple structs.
+        static_assert(std::is_trivially_copyable_v<T>, "POD only");
+        // Prevent reading past end
+        if (cur + sizeof(T) > end) throw std::runtime_error("Buffer underrun");
+
+        // Copy sizeof(T) bytes from the buffer into a real variable.
+        T value;
+        std::memcpy(&value, cur, sizeof(T));   // memcpy is the safe way to read a POD from bytes
+        cur += sizeof(T);
+        return value;
+    }
+    // readBytes(): copy a raw chunk of n bytes into dst and move forward.
+    // Used for things whose size is only known at runtime:
+    //   - string characters:   r.readBytes(term.data(), termLen);
+    //   - arrays of structs:   r.readBytes(locations.data(), locCount * sizeof(WordLocation));
+    // dst is void* so it accepts a pointer to anything.
+    void readBytes(void* dst, size_t n) {
+        if (cur + n > end) throw std::runtime_error("Buffer underrun");
+        std::memcpy(dst, cur, n);
+        cur += n;
+    }
+};
+
 PartialResult IndexSerializer::partialLoadIndexThreadWorkers(const std::filesystem::path& filePath) {
+    // ONE read of the whole segment into memory (same idea as readText's rdbuf slurp)
     std::ifstream in(filePath, std::ios::binary);
-    if (!in) throw std::runtime_error("Failed reading term");
+    if (!in) throw std::runtime_error("Failed opening segment: " + filePath.string());
+    std::string buf;
+    {
+        std::ostringstream ss;
+        ss << in.rdbuf();
+        buf = std::move(ss).str();
+    }
+
+
+    BinaryReader r(buf);
     PartialResult result;
 
-    uint64_t pathLen = readBinary<uint64_t>(in);
-    std::string pathStr(pathLen, '\0');
-    in.read(pathStr.data(), pathLen);
-    if (!in) throw std::runtime_error("Failed reading path");
-    std::filesystem::path originalPath = pathStr;
-    result.filePath = originalPath;
+    // Tedious since it use to be binary
+    uint64_t pathLen = r.read<uint64_t>(); // Reads path length 
+    std::string pathStr(pathLen, '\0');    // Make a string of that length
+    r.readBytes(pathStr.data(), pathLen); // Reads path name
+    result.filePath = std::filesystem::path(pathStr); // Stores in index
 
-    result.localFileToTerms.tokenCount = readBinary<uint64_t>(in);
-    result.localFileToTerms.generation = readBinary<uint64_t>(in);
-    uint64_t totalTerms = readBinary<uint64_t>(in);
+    result.localFileToTerms.tokenCount = r.read<uint64_t>(); // tokenCount (count of all tokens)
+    result.localFileToTerms.generation = r.read<uint64_t>(); // generation
+    uint64_t totalTerms = r.read<uint64_t>(); // total terms (not including duplicates)
+
+    result.localFileToTerms.uniqueTerms.reserve(totalTerms);
+    result.localIndex.reserve(totalTerms);
 
     for (uint64_t i = 0; i < totalTerms; i++) {
-        uint64_t termLen = readBinary<uint64_t>(in);
+        uint64_t termLen = r.read<uint64_t>(); // Reads term Length
+        std::string term(termLen, '\0'); // Make a string of that length
+        r.readBytes(term.data(), termLen); // Reads term
 
-        std::string term(termLen, '\0');
-        in.read(term.data(), termLen);
-        if (!in) throw std::runtime_error("Failed reading term");
+        uint64_t locCount = r.read<uint64_t>(); // Reads how many locations
+        std::vector<WordLocation> locations(locCount); // Make space
+        r.readBytes(locations.data(), locCount * sizeof(WordLocation)); // loads locations into index
+
         result.localFileToTerms.uniqueTerms.insert(term);
-
-        uint64_t locCount = readBinary<uint64_t>(in);
-        std::vector<WordLocation> locations(locCount);
-        in.read(reinterpret_cast<char*>(locations.data()), locCount * sizeof(WordLocation));
-        if (!in) throw std::runtime_error("Failed reading term");
-        result.localIndex[term] = std::move(locations);
+        result.localIndex.emplace(std::move(term), std::move(locations));
     }
     return result;
-
 }
+
 void IndexSerializer::mergePartialLoadIndexThreadWorkers(Indexer& indexer, PartialResult&& partial, TernarySearchTree& tst) {
     
     for (auto& [token, location] : partial.localIndex) {
